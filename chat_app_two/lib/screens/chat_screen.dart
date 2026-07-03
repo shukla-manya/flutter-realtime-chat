@@ -28,11 +28,17 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void initState() {
     super.initState();
-    _composerController.addListener(() => setState(() {}));
+    _composerController.addListener(_onComposerUpdated);
+  }
+
+  void _onComposerUpdated() {
+    if (!mounted) return;
+    setState(() {});
   }
 
   @override
   void dispose() {
+    _composerController.removeListener(_onComposerUpdated);
     _composerController.dispose();
     _scrollController.dispose();
     super.dispose();
@@ -40,7 +46,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   void _scrollToBottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!_scrollController.hasClients) return;
+      if (!mounted || !_scrollController.hasClients) return;
       _scrollController.animateTo(
         _scrollController.position.maxScrollExtent + 80,
         duration: const Duration(milliseconds: 250),
@@ -282,7 +288,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 onSend: () {
                   chat.sendMessage(_composerController.text);
                   _composerController.clear();
-                  setState(() {});
+                  if (mounted) setState(() {});
                 },
               ),
             ],
