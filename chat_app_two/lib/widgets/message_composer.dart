@@ -32,17 +32,18 @@ class MessageComposer extends StatelessWidget {
             color: AppColors.elevated,
             borderRadius: BorderRadius.circular(24),
             border: Border.all(
-              color: AppColors.electricPurple.withValues(alpha: 0.2),
+              color: AppColors.purple.withValues(alpha: 0.18),
             ),
             boxShadow: [
               BoxShadow(
-                color: AppColors.electricPurple.withValues(alpha: 0.12),
-                blurRadius: 18,
-                offset: const Offset(0, 6),
+                color: AppColors.purple.withValues(alpha: 0.1),
+                blurRadius: 16,
+                offset: const Offset(0, 5),
               ),
             ],
           ),
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Material(
                 color: Colors.transparent,
@@ -56,9 +57,9 @@ class MessageComposer extends StatelessWidget {
                       gradient: AppColors.primaryGradient,
                       borderRadius: BorderRadius.circular(18),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.auto_awesome_rounded,
-                      color: Colors.white,
+                      color: Colors.white.withValues(alpha: enabled ? 1 : 0.5),
                       size: 20,
                     ),
                   ),
@@ -69,19 +70,25 @@ class MessageComposer extends StatelessWidget {
                   controller: controller,
                   enabled: enabled,
                   minLines: 1,
-                  maxLines: 4,
+                  maxLines: 5,
                   textInputAction: TextInputAction.send,
+                  textCapitalization: TextCapitalization.sentences,
                   onChanged: onChanged,
                   onSubmitted: (_) {
                     if (canSend) onSend();
                   },
-                  decoration: const InputDecoration(
-                    hintText: 'Message or /ai …',
+                  style: const TextStyle(color: AppColors.textPrimary),
+                  decoration: InputDecoration(
+                    hintText: enabled ? 'Message or /ai …' : 'Connecting…',
+                    hintStyle: TextStyle(
+                      color: AppColors.textSecondary.withValues(alpha: 0.85),
+                    ),
                     border: InputBorder.none,
                     enabledBorder: InputBorder.none,
                     focusedBorder: InputBorder.none,
+                    disabledBorder: InputBorder.none,
                     filled: false,
-                    contentPadding: EdgeInsets.symmetric(
+                    contentPadding: const EdgeInsets.symmetric(
                       horizontal: 12,
                       vertical: 10,
                     ),
@@ -89,7 +96,7 @@ class MessageComposer extends StatelessWidget {
                 ),
               ),
               AnimatedOpacity(
-                opacity: canSend ? 1 : 0.45,
+                opacity: canSend ? 1 : 0.4,
                 duration: const Duration(milliseconds: 150),
                 child: Material(
                   color: Colors.transparent,
@@ -100,7 +107,7 @@ class MessageComposer extends StatelessWidget {
                       width: 44,
                       height: 44,
                       decoration: BoxDecoration(
-                        color: AppColors.softBlue,
+                        color: AppColors.blue,
                         borderRadius: BorderRadius.circular(18),
                       ),
                       child: const Icon(

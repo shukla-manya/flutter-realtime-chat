@@ -20,17 +20,31 @@ class SmartReplyChips extends StatelessWidget {
       spacing: 8,
       runSpacing: 8,
       children: suggestions.map((suggestion) {
-        return ActionChip(
-          label: Text(suggestion),
-          backgroundColor: AppColors.surface,
-          side: BorderSide(
-            color: AppColors.neonCyan.withValues(alpha: 0.35),
+        return Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: () => onSelected(suggestion),
+            borderRadius: BorderRadius.circular(999),
+            child: Ink(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              decoration: BoxDecoration(
+                color: AppColors.surface,
+                borderRadius: BorderRadius.circular(999),
+                border: Border.all(
+                  color: AppColors.cyan.withValues(alpha: 0.35),
+                ),
+              ),
+              child: Text(
+                suggestion,
+                style: const TextStyle(
+                  color: AppColors.textPrimary,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 13,
+                  height: 1.25,
+                ),
+              ),
+            ),
           ),
-          labelStyle: const TextStyle(
-            color: AppColors.textPrimary,
-            fontWeight: FontWeight.w600,
-          ),
-          onPressed: () => onSelected(suggestion),
         );
       }).toList(),
     );

@@ -20,17 +20,12 @@ class MessageComposer extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final canSend = enabled && controller.text.trim().isNotEmpty;
-    final bottomInset = MediaQuery.viewInsetsOf(context).bottom;
 
-    return AnimatedPadding(
-      duration: const Duration(milliseconds: 160),
-      curve: Curves.easeOut,
-      padding: EdgeInsets.only(bottom: bottomInset > 0 ? 0 : 0),
-      child: SafeArea(
-        top: false,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
-          child: Container(
+    return SafeArea(
+      top: false,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
+        child: Container(
             padding: const EdgeInsets.all(6),
             decoration: BoxDecoration(
               color: isDark ? AppColors.darkSurface : AppColors.white,
@@ -118,3 +113,5 @@ class MessageComposer extends StatelessWidget {
     );
   }
 }
+
+

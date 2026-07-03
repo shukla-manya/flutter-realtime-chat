@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../core/theme/app_colors.dart';
+import '../core/theme/app_layout.dart';
 import '../models/chat_message.dart';
 import 'ai_message_bubble.dart';
 
@@ -22,6 +23,9 @@ class MessageBubble extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 8),
         child: Center(
           child: Container(
+            constraints: BoxConstraints(
+              maxWidth: AppLayout.bubbleMaxWidth(context),
+            ),
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
               color: Colors.white.withValues(alpha: 0.06),
@@ -29,8 +33,10 @@ class MessageBubble extends StatelessWidget {
             ),
             child: Text(
               message.content,
+              textAlign: TextAlign.center,
               style: const TextStyle(
                 fontSize: 12,
+                height: 1.3,
                 color: AppColors.textSecondary,
               ),
             ),
@@ -49,7 +55,7 @@ class MessageBubble extends StatelessWidget {
       alignment: isMine ? Alignment.centerRight : Alignment.centerLeft,
       child: ConstrainedBox(
         constraints: BoxConstraints(
-          maxWidth: MediaQuery.sizeOf(context).width * 0.78,
+          maxWidth: AppLayout.bubbleMaxWidth(context),
         ),
         child: Container(
           margin: const EdgeInsets.symmetric(vertical: 4),
@@ -65,9 +71,9 @@ class MessageBubble extends StatelessWidget {
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.25),
-                blurRadius: 12,
-                offset: const Offset(0, 4),
+                color: Colors.black.withValues(alpha: 0.22),
+                blurRadius: 10,
+                offset: const Offset(0, 3),
               ),
             ],
           ),
@@ -78,26 +84,28 @@ class MessageBubble extends StatelessWidget {
               if (!isMine)
                 Text(
                   message.sender,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.neonCyan,
+                    color: AppColors.cyan,
                   ),
                 ),
-              if (!isMine) const SizedBox(height: 2),
-              Text(
+              if (!isMine) const SizedBox(height: 3),
+              SelectableText(
                 message.content,
                 style: const TextStyle(
                   color: AppColors.textPrimary,
                   height: 1.35,
                 ),
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: 5),
               Text(
                 time,
                 style: TextStyle(
                   fontSize: 11,
-                  color: Colors.white.withValues(alpha: 0.65),
+                  color: Colors.white.withValues(alpha: 0.6),
                 ),
               ),
             ],

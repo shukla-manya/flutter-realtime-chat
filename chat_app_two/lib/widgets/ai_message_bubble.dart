@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../core/theme/app_colors.dart';
+import '../core/theme/app_layout.dart';
 import '../models/chat_message.dart';
 
 class AiMessageBubble extends StatelessWidget {
@@ -17,7 +18,7 @@ class AiMessageBubble extends StatelessWidget {
       alignment: Alignment.centerLeft,
       child: ConstrainedBox(
         constraints: BoxConstraints(
-          maxWidth: MediaQuery.sizeOf(context).width * 0.82,
+          maxWidth: AppLayout.bubbleMaxWidth(context),
         ),
         child: Container(
           margin: const EdgeInsets.symmetric(vertical: 6),
@@ -26,13 +27,13 @@ class AiMessageBubble extends StatelessWidget {
             color: AppColors.elevated,
             borderRadius: BorderRadius.circular(18),
             border: Border.all(
-              color: AppColors.electricPurple.withValues(alpha: 0.45),
+              color: AppColors.purple.withValues(alpha: 0.4),
             ),
             boxShadow: [
               BoxShadow(
-                color: AppColors.electricPurple.withValues(alpha: 0.18),
-                blurRadius: 18,
-                offset: const Offset(0, 6),
+                color: AppColors.purple.withValues(alpha: 0.12),
+                blurRadius: 14,
+                offset: const Offset(0, 4),
               ),
             ],
           ),
@@ -40,19 +41,22 @@ class AiMessageBubble extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
-                mainAxisSize: MainAxisSize.min,
                 children: [
                   const Icon(
                     Icons.auto_awesome_rounded,
                     size: 16,
-                    color: AppColors.electricPurple,
+                    color: AppColors.purple,
                   ),
                   const SizedBox(width: 6),
-                  Text(
-                    message.sender,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.electricPurple,
+                  Flexible(
+                    child: Text(
+                      message.sender,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.purple,
+                      ),
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -75,7 +79,7 @@ class AiMessageBubble extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 8),
-              Text(
+              SelectableText(
                 message.content,
                 style: const TextStyle(
                   color: AppColors.textPrimary,

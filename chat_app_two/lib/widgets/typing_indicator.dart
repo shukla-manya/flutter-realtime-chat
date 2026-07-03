@@ -18,13 +18,13 @@ class TypingIndicator extends StatelessWidget {
           Container(
             width: 8,
             height: 8,
-            decoration: const BoxDecoration(
-              color: AppColors.neonCyan,
+            decoration: BoxDecoration(
+              color: AppColors.cyan,
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: AppColors.neonCyan,
-                  blurRadius: 8,
+                  color: AppColors.cyan.withValues(alpha: 0.45),
+                  blurRadius: 6,
                 ),
               ],
             ),
@@ -33,6 +33,8 @@ class TypingIndicator extends StatelessWidget {
           Flexible(
             child: Text(
               label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: const TextStyle(
                 color: AppColors.textSecondary,
                 fontSize: 13,

@@ -11,6 +11,8 @@ class TypingIndicator extends StatelessWidget {
   Widget build(BuildContext context) {
     if (label.isEmpty) return const SizedBox.shrink();
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
       child: Row(
@@ -27,10 +29,10 @@ class TypingIndicator extends StatelessWidget {
           Flexible(
             child: Text(
               label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: TextStyle(
-                color: Theme.of(context).brightness == Brightness.dark
-                    ? Colors.white70
-                    : AppColors.textMuted,
+                color: isDark ? Colors.white70 : AppColors.textMuted,
                 fontSize: 13,
                 fontWeight: FontWeight.w500,
               ),
