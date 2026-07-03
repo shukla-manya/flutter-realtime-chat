@@ -85,7 +85,7 @@ class ChatProvider extends ChangeNotifier {
     try {
       await _service.connect(username: this.username, roomId: this.roomId);
     } catch (_) {
-      errorMessage = 'Unable to connect to chat server';
+      errorMessage = 'Could not connect';
     } finally {
       isJoining = false;
       notifyListeners();
@@ -173,13 +173,13 @@ class ChatProvider extends ChangeNotifier {
     String? content,
   }) async {
     if (!connectionStatus.isOnline) {
-      aiError = 'Connect to chat before using AI features';
+      aiError = 'Connect first';
       notifyListeners();
       return null;
     }
 
     if (action == AiAction.summarize && messages.where((m) => !m.isSystem).isEmpty) {
-      aiError = 'No messages to summarize yet';
+      aiError = 'No messages to summarize';
       notifyListeners();
       return null;
     }
@@ -205,7 +205,7 @@ class ChatProvider extends ChangeNotifier {
       }
       final source = latestOther ?? latestAny;
       if (source == null || source.content.isEmpty) {
-        aiError = 'Need at least one message for smart replies';
+        aiError = 'Need a message for smart replies';
         notifyListeners();
         return null;
       }
@@ -245,7 +245,7 @@ class ChatProvider extends ChangeNotifier {
     _aiTimeoutTimer?.cancel();
     _aiTimeoutTimer = Timer(AppConstants.aiTimeout, () {
       if (_aiCompleter != null && !(_aiCompleter!.isCompleted)) {
-        aiError = 'AI request timed out';
+        aiError = 'AI timed out';
         isAiLoading = false;
         activeAiAction = null;
         notifyListeners();

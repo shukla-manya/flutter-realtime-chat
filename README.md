@@ -1,18 +1,20 @@
 # Flutter Realtime Chat
 
-Two polished Flutter chat apps sharing one Node.js WebSocket backend.
+PulseChat and NovaChat AI — two Flutter apps that share one Node.js WebSocket backend.
+
+This project demonstrates Flutter development, Dart, WebSocket communication, real-time messaging, state management, Node.js backend integration, and Groq AI integration.
 
 | App | Purpose |
 |---|---|
-| **PulseChat** (`chat_app_one`) | Beautiful human-to-human realtime chat |
+| **PulseChat** (`chat_app_one`) | Human-to-human realtime chat |
 | **NovaChat AI** (`chat_app_two`) | Same realtime chat + Groq-powered AI tools |
 | **WebSocket Server** (`websocket_server`) | Shared rooms, presence, typing, AI proxy |
 
+Both apps connect to the **same** backend and can chat in the same room instantly.
+
 ## Assignment objective
 
-Create 2 sample Flutter apps with a chat system over WebSocket, simple enough to verify required skills, polished enough for an interview demo.
-
-Both apps connect to the **same** backend and can chat in the same room instantly.
+Build two sample Flutter chat apps over WebSocket — simple enough to verify core skills, polished enough for a live demo.
 
 ## Screenshots
 
@@ -283,3 +285,9 @@ AI actions:
 - [ ] Same room id
 - [ ] Cross-app chat proven
 - [ ] AI tools demonstrated from NovaChat AI
+
+## Author
+
+MANYA SHUKLA
+
+2026

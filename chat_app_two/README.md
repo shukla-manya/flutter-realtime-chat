@@ -1,8 +1,8 @@
 # NovaChat AI
 
-Futuristic real-time chat app with Groq-powered AI enhancements.
+Realtime chat with AI tools, by MS.
 
-Normal chat still uses WebSocket. AI features are requested through the shared backend so the Groq API key never ships in the Flutter app.
+Normal chat still uses WebSocket. AI features go through the shared backend so the Groq API key never ships in the Flutter app.
 
 ## AI features
 
@@ -10,7 +10,7 @@ Normal chat still uses WebSocket. AI features are requested through the shared b
 - Rewrite professionally / friendly / concise
 - Summarize conversation
 - `/ai <question>` command
-- Distinct AI message bubbles with badge
+- Distinct AI message bubbles
 
 ## Run
 
@@ -19,7 +19,6 @@ Normal chat still uses WebSocket. AI features are requested through the shared b
 ```bash
 cd ../websocket_server
 cp .env.example .env
-# set GROQ_API_KEY and GROQ_MODEL
 npm install
 npm start
 ```
@@ -37,7 +36,6 @@ flutter pub get
 ```bash
 flutter run
 
-# Physical device
 flutter run --dart-define=WS_URL=ws://192.168.1.10:8080
 ```
 

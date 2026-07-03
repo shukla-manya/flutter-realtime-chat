@@ -1,16 +1,15 @@
 # PulseChat
 
-Beautiful real-time human-to-human chat built with Flutter + WebSocket.
+Realtime chat app by MS.
 
 ## Features
 
 - Join rooms with a display name
 - Real-time messaging
 - Typing indicators
-- Online/offline connection status
-- Automatic reconnection with exponential backoff
+- Online / offline connection status
+- Automatic reconnection
 - Light / dark theme
-- Duplicate message prevention
 
 ## Run
 
@@ -33,13 +32,8 @@ flutter pub get
 3. Run the app:
 
 ```bash
-# iOS Simulator / desktop / macOS
 flutter run
 
-# Android Emulator (default URL is already ws://10.0.2.2:8080)
-flutter run
-
-# Physical device — pass your computer's LAN IP
 flutter run --dart-define=WS_URL=ws://192.168.1.10:8080
 ```
 
@@ -49,4 +43,4 @@ flutter run --dart-define=WS_URL=ws://192.168.1.10:8080
 2. Enter username `Manya`
 3. Join room `general`
 4. Open NovaChat AI on another device/emulator
-5. Join the same room and chat instantly
+5. Join the same room and chat

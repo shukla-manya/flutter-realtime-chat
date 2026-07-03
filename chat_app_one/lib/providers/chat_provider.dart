@@ -76,7 +76,7 @@ class ChatProvider extends ChangeNotifier {
     try {
       await _service.connect(username: this.username, roomId: this.roomId);
     } catch (_) {
-      errorMessage = 'Unable to connect to chat server';
+      errorMessage = 'Could not connect';
     } finally {
       isJoining = false;
       notifyListeners();
