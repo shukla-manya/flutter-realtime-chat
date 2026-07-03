@@ -3,8 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../core/theme/app_colors.dart';
-import '../models/chat_message.dart';
-import '../models/connection_status.dart';
+import '../core/theme/app_layout.dart';
 import '../providers/chat_provider.dart';
 import '../providers/theme_provider.dart';
 import '../widgets/brand_footer.dart';
@@ -178,6 +177,8 @@ class _ChatScreenState extends State<ChatScreen> {
           children: [
             Text(
               '#${chat.roomId}',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: const TextStyle(fontWeight: FontWeight.w800),
             ),
             const SizedBox(height: 2),
@@ -194,12 +195,16 @@ class _ChatScreenState extends State<ChatScreen> {
                   ),
                 ),
                 const SizedBox(width: 6),
-                Text(
-                  '${chat.connectionStatus.label} · ${chat.onlineCount} online',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: isDark ? Colors.white70 : AppColors.textMuted,
-                    fontWeight: FontWeight.w500,
+                Flexible(
+                  child: Text(
+                    '${chat.connectionStatus.label} · ${chat.onlineCount} online',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: isDark ? Colors.white70 : AppColors.textMuted,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                 ),
               ],
@@ -214,29 +219,40 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          ConnectionBanner(status: chat.connectionStatus),
-          Expanded(
-            child: chat.messages.isEmpty
-                ? EmptyChatState(roomId: chat.roomId)
-                : ListView(
-                    controller: _scrollController,
-                    padding: const EdgeInsets.fromLTRB(14, 8, 14, 8),
-                    children: _buildMessageItems(chat),
-                  ),
+      body: Align(
+        alignment: Alignment.topCenter,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: AppLayout.contentMaxWidth(context),
           ),
-          TypingIndicator(label: chat.typingLabel),
-          MessageComposer(
-            controller: _composerController,
-            enabled: chat.connectionStatus.isOnline,
-            onChanged: chat.onComposerChanged,
-            onSend: () {
-              chat.sendMessage(_composerController.text);
-              _composerController.clear();
-            },
+          child: Column(
+            children: [
+              ConnectionBanner(status: chat.connectionStatus),
+              Expanded(
+                child: chat.messages.isEmpty
+                    ? EmptyChatState(roomId: chat.roomId)
+                    : ListView(
+                        controller: _scrollController,
+                        keyboardDismissBehavior:
+                            ScrollViewKeyboardDismissBehavior.onDrag,
+                        padding: const EdgeInsets.fromLTRB(14, 8, 14, 8),
+                        children: _buildMessageItems(chat),
+                      ),
+              ),
+              TypingIndicator(label: chat.typingLabel),
+              MessageComposer(
+                controller: _composerController,
+                enabled: chat.connectionStatus.isOnline,
+                onChanged: chat.onComposerChanged,
+                onSend: () {
+                  chat.sendMessage(_composerController.text);
+                  _composerController.clear();
+                  setState(() {});
+                },
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

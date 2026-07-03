@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../core/theme/app_colors.dart';
+import '../core/theme/app_layout.dart';
 import '../models/chat_message.dart';
 
 class MessageBubble extends StatelessWidget {
@@ -16,25 +17,30 @@ class MessageBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     if (message.isSystem) {
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 8),
         child: Center(
           child: Container(
+            constraints: BoxConstraints(
+              maxWidth: AppLayout.bubbleMaxWidth(context),
+            ),
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: Theme.of(context).brightness == Brightness.dark
+              color: isDark
                   ? Colors.white.withValues(alpha: 0.08)
                   : Colors.black.withValues(alpha: 0.05),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(
               message.content,
+              textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 12,
-                color: Theme.of(context).brightness == Brightness.dark
-                    ? Colors.white70
-                    : AppColors.textMuted,
+                height: 1.3,
+                color: isDark ? Colors.white70 : AppColors.textMuted,
               ),
             ),
           ),
@@ -43,13 +49,12 @@ class MessageBubble extends StatelessWidget {
     }
 
     final time = DateFormat.jm().format(message.timestamp.toLocal());
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Align(
       alignment: isMine ? Alignment.centerRight : Alignment.centerLeft,
       child: ConstrainedBox(
         constraints: BoxConstraints(
-          maxWidth: MediaQuery.sizeOf(context).width * 0.78,
+          maxWidth: AppLayout.bubbleMaxWidth(context),
         ),
         child: Container(
           margin: const EdgeInsets.symmetric(vertical: 4),
@@ -67,9 +72,9 @@ class MessageBubble extends StatelessWidget {
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.06),
-                blurRadius: 12,
-                offset: const Offset(0, 4),
+                color: Colors.black.withValues(alpha: isDark ? 0.22 : 0.05),
+                blurRadius: 10,
+                offset: const Offset(0, 3),
               ),
             ],
           ),
@@ -81,12 +86,16 @@ class MessageBubble extends StatelessWidget {
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
-                      message.sender,
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                        color: isDark ? AppColors.accent : AppColors.primary,
+                    Flexible(
+                      child: Text(
+                        message.sender,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          color: isDark ? AppColors.accent : AppColors.primary,
+                        ),
                       ),
                     ),
                     if (message.isAi) ...[
@@ -112,8 +121,8 @@ class MessageBubble extends StatelessWidget {
                     ],
                   ],
                 ),
-              if (!isMine) const SizedBox(height: 2),
-              Text(
+              if (!isMine) const SizedBox(height: 3),
+              SelectableText(
                 message.content,
                 style: TextStyle(
                   color: isMine
@@ -122,7 +131,7 @@ class MessageBubble extends StatelessWidget {
                   height: 1.35,
                 ),
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: 5),
               Text(
                 time,
                 style: TextStyle(
