@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../core/constants/app_constants.dart';
 import '../core/theme/app_colors.dart';
+import '../widgets/brand_footer.dart';
 import '../widgets/ms_mark.dart';
 import 'join_screen.dart';
 
@@ -57,64 +58,74 @@ class _SplashScreenState extends State<SplashScreen>
         child: SafeArea(
           child: FadeTransition(
             opacity: _fade,
-            child: ScaleTransition(
-              scale: _scale,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      Container(
-                        width: 120,
-                        height: 120,
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.12),
-                          borderRadius: BorderRadius.circular(36),
+            child: Column(
+              children: [
+                Expanded(
+                  child: ScaleTransition(
+                    scale: _scale,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            Container(
+                              width: 120,
+                              height: 120,
+                              decoration: BoxDecoration(
+                                color: Colors.white.withValues(alpha: 0.12),
+                                borderRadius: BorderRadius.circular(36),
+                              ),
+                            ),
+                            const MsMark(size: 96, showGlow: true),
+                            Positioned(
+                              right: 8,
+                              top: 10,
+                              child: Icon(
+                                Icons.chat_bubble_rounded,
+                                size: 22,
+                                color: Colors.white.withValues(alpha: 0.9),
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                      const MsMark(size: 96, showGlow: true),
-                      Positioned(
-                        right: 8,
-                        top: 10,
-                        child: Icon(
-                          Icons.chat_bubble_rounded,
-                          size: 22,
-                          color: Colors.white.withValues(alpha: 0.9),
+                        const SizedBox(height: 24),
+                        Text(
+                          AppConstants.appName,
+                          style: Theme.of(context)
+                              .textTheme
+                              .headlineMedium
+                              ?.copyWith(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w800,
+                                letterSpacing: -0.5,
+                              ),
                         ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 24),
-                  Text(
-                    AppConstants.appName,
-                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: -0.5,
+                        const SizedBox(height: 6),
+                        Text(
+                          'by MS',
+                          style: TextStyle(
+                            color: Colors.white.withValues(alpha: 0.85),
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 1.2,
+                          ),
                         ),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    'by MS',
-                    style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.85),
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: 1.2,
+                        const SizedBox(height: 12),
+                        Text(
+                          AppConstants.appSubtitle,
+                          style: TextStyle(
+                            color: Colors.white.withValues(alpha: 0.9),
+                            fontSize: 15,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 12),
-                  Text(
-                    AppConstants.appSubtitle,
-                    style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.9),
-                      fontSize: 15,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
+                ),
+                const BrandFooter(light: true),
+              ],
             ),
           ),
         ),

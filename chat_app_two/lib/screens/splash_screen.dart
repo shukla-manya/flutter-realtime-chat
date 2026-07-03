@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../core/constants/app_constants.dart';
 import '../core/theme/app_colors.dart';
+import '../widgets/brand_footer.dart';
 import '../widgets/ms_mark.dart';
 import 'join_screen.dart';
 
@@ -70,39 +71,47 @@ class _SplashScreenState extends State<SplashScreen>
           child: FadeTransition(
             opacity: _fade,
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                ScaleTransition(
-                  scale: _pulse,
-                  child: const MsMark(size: 100, showGlow: true),
-                ),
-                const SizedBox(height: 24),
-                Text(
-                  AppConstants.appName,
-                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: -0.4,
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ScaleTransition(
+                        scale: _pulse,
+                        child: const MsMark(size: 100, showGlow: true),
                       ),
-                ),
-                const SizedBox(height: 6),
-                const Text(
-                  'by MS',
-                  style: TextStyle(
-                    color: AppColors.textSecondary,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: 1.2,
+                      const SizedBox(height: 24),
+                      Text(
+                        AppConstants.appName,
+                        style:
+                            Theme.of(context).textTheme.headlineMedium?.copyWith(
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: -0.4,
+                                ),
+                      ),
+                      const SizedBox(height: 6),
+                      const Text(
+                        'by MS',
+                        style: TextStyle(
+                          color: AppColors.textSecondary,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 1.2,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      const Text(
+                        AppConstants.appSubtitle,
+                        style: TextStyle(
+                          color: AppColors.textSecondary,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(height: 12),
-                const Text(
-                  AppConstants.appSubtitle,
-                  style: TextStyle(
-                    color: AppColors.textSecondary,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
+                const BrandFooter(),
               ],
             ),
           ),

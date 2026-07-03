@@ -6,6 +6,7 @@ import '../core/theme/app_colors.dart';
 import '../models/connection_status.dart';
 import '../providers/chat_provider.dart';
 import '../widgets/ai_action_sheet.dart';
+import '../widgets/brand_footer.dart';
 import '../widgets/connection_banner.dart';
 import '../widgets/empty_chat_state.dart';
 import '../widgets/message_bubble.dart';
@@ -53,6 +54,53 @@ class _ChatScreenState extends State<ChatScreen> {
     if (!mounted) return;
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(builder: (_) => const JoinScreen()),
+    );
+  }
+
+  void _showSettings(ChatProvider chat) {
+    showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      backgroundColor: AppColors.elevated,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                'Profile & Settings',
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w800,
+                    ),
+              ),
+              const SizedBox(height: 16),
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: const CircleAvatar(
+                  backgroundColor: AppColors.electricPurple,
+                  child: Icon(Icons.person, color: Colors.white),
+                ),
+                title: Text(chat.username),
+                subtitle: Text('Room: #${chat.roomId}'),
+              ),
+              const SizedBox(height: 8),
+              FilledButton.tonal(
+                onPressed: () {
+                  Navigator.pop(context);
+                  _leave();
+                },
+                child: const Text('Leave room'),
+              ),
+              const BrandFooter(),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -186,9 +234,9 @@ class _ChatScreenState extends State<ChatScreen> {
         ),
         actions: [
           IconButton(
-            tooltip: 'Leave room',
-            onPressed: _leave,
-            icon: const Icon(Icons.logout_rounded),
+            tooltip: 'Settings',
+            onPressed: () => _showSettings(chat),
+            icon: const Icon(Icons.more_horiz_rounded),
           ),
         ],
       ),
