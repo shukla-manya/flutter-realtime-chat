@@ -7,4 +7,6 @@ class AppConstants {
   static const appSubtitle = 'Real-time chat, enhanced by AI';
   static const defaultRoomId = 'general';
   static const splashDuration = Duration(milliseconds: 1600);
+  static const typingIdleMs = 1200;
+  static const aiTimeout = Duration(seconds: 25);
 }

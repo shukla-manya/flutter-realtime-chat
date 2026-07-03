@@ -8,6 +8,10 @@ class AppColors {
   static const cyan = Color(0xFF06B6D4);
   static const blue = Color(0xFF3B82F6);
   static const pink = Color(0xFFEC4899);
+  static const electricPurple = purple;
+  static const neonCyan = cyan;
+  static const softBlue = blue;
+  static const pinkAccent = pink;
   static const textPrimary = Color(0xFFF8FAFC);
   static const textSecondary = Color(0xFF94A3B8);
   static const success = Color(0xFF34D399);
