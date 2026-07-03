@@ -199,10 +199,11 @@ async function run() {
     }
   }
 
-  let roomAi = null;
-  const aiMsgWait = once(
-    manya,
-    (m) => m.type === 'message' && m.isAi === true,
+  const aiCmdUserMsg = once(manya, (m) => m.type === 'message' && m.id === 'audit-ai-cmd');
+  const aiCmdRoomAi = once(manya, (m) => m.type === 'message' && m.isAi === true, 25000);
+  const aiCmdError = once(
+    reviewer,
+    (m) => m.type === 'error' && (m.code || '').startsWith('AI_'),
     25000,
   );
   reviewer.send(
@@ -215,26 +216,20 @@ async function run() {
       timestamp: new Date().toISOString(),
     }),
   );
-  await once(manya, (m) => m.type === 'message' && m.id === 'audit-ai-cmd');
-  try {
-    roomAi = await aiMsgWait;
-    record('PASS', '/ai room AI message', `isAi=${roomAi.isAi}`);
-    record(
-      roomAi.isAi === true ? 'PASS' : 'FAIL',
-      'AI badge field isAi=true',
-    );
-  } catch (_) {
-    const err = await once(
-      reviewer,
-      (m) => m.type === 'error' && (m.code || '').startsWith('AI_'),
-      2000,
-    ).catch(() => null);
-    if (err) {
-      record('PASS', '/ai failure without key', err.code);
-      record('PASS', 'AI badge path (skipped, no key)');
-    } else {
-      record('FAIL', '/ai command', 'no AI message and no error');
-    }
+  await aiCmdUserMsg;
+  record('PASS', '/ai user message broadcast');
+
+  const aiCmdOutcome = await Promise.race([
+    aiCmdRoomAi.then((msg) => ({ kind: 'message', msg })),
+    aiCmdError.then((err) => ({ kind: 'error', err })),
+  ]);
+
+  if (aiCmdOutcome.kind === 'message') {
+    record('PASS', '/ai room AI message', `isAi=${aiCmdOutcome.msg.isAi}`);
+    record(aiCmdOutcome.msg.isAi === true ? 'PASS' : 'FAIL', 'AI badge field isAi=true');
+  } else {
+    record('PASS', '/ai failure without key', aiCmdOutcome.err.code);
+    record('PASS', 'AI badge path (not exercised, no valid key)');
   }
 
   reviewer.close();
