@@ -131,7 +131,7 @@ class _JoinScreenState extends State<JoinScreen> {
                                       ),
                                       SizedBox(height: 4),
                                       Text(
-                                        'Chat in real time with AI tools next.',
+                                        'Start chatting in real time.',
                                         style: TextStyle(
                                           color: Colors.white70,
                                           fontSize: 13,
