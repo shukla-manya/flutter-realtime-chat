@@ -1,0 +1,35 @@
+{
+    "name": "NovaChat AI | MS",
+    "short_name": "NovaChat AI",
+    "start_url": ".",
+    "display": "standalone",
+    "background_color": "#070A13",
+    "theme_color": "#A855F7",
+    "description": "NovaChat AI by MS — real-time chat with AI tools.",
+    "orientation": "portrait-primary",
+    "prefer_related_applications": false,
+    "icons": [
+        {
+            "src": "icons/Icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "icons/Icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        },
+        {
+            "src": "icons/Icon-maskable-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "maskable"
+        },
+        {
+            "src": "icons/Icon-maskable-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "maskable"
+        }
+    ]
+}
