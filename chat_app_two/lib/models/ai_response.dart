@@ -34,11 +34,11 @@ class AiResponse {
 }
 
 enum AiAction {
-  smartReply('smart_reply', 'Smart replies'),
-  rewriteProfessional('rewrite_professional', 'Rewrite professionally'),
-  rewriteFriendly('rewrite_friendly', 'Rewrite friendly'),
-  makeConcise('make_concise', 'Make concise'),
-  summarize('summarize', 'Summarize this chat'),
+  smartReply('smart_reply', 'Smart Replies'),
+  rewriteProfessional('rewrite_professional', 'Rewrite Professionally'),
+  rewriteFriendly('rewrite_friendly', 'Rewrite Friendly'),
+  makeConcise('make_concise', 'Make Concise'),
+  summarize('summarize', 'Summarize Chat'),
   ask('ask', 'Ask AI');
 
   const AiAction(this.wireValue, this.label);

@@ -62,7 +62,29 @@ class _SplashScreenState extends State<SplashScreen>
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const MsMark(size: 96, showGlow: true),
+                  Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      Container(
+                        width: 120,
+                        height: 120,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(36),
+                        ),
+                      ),
+                      const MsMark(size: 96, showGlow: true),
+                      Positioned(
+                        right: 8,
+                        top: 10,
+                        child: Icon(
+                          Icons.chat_bubble_rounded,
+                          size: 22,
+                          color: Colors.white.withValues(alpha: 0.9),
+                        ),
+                      ),
+                    ],
+                  ),
                   const SizedBox(height: 24),
                   Text(
                     AppConstants.appName,
