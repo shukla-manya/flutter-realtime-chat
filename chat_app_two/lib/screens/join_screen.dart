@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 import '../core/constants/app_constants.dart';
 import '../core/theme/app_colors.dart';
+import '../core/theme/app_spacing.dart';
 import '../core/utils/validators.dart';
-import '../models/connection_status.dart';
-import '../providers/chat_provider.dart';
 import '../widgets/brand_footer.dart';
 import '../widgets/ms_mark.dart';
-import 'chat_screen.dart';
 
 class JoinScreen extends StatefulWidget {
   const JoinScreen({super.key});
@@ -19,18 +16,10 @@ class JoinScreen extends StatefulWidget {
 
 class _JoinScreenState extends State<JoinScreen> {
   final _formKey = GlobalKey<FormState>();
-  late final TextEditingController _nameController;
-  late final TextEditingController _roomController;
-
-  @override
-  void initState() {
-    super.initState();
-    final chat = context.read<ChatProvider>();
-    _nameController = TextEditingController(text: chat.username);
-    _roomController = TextEditingController(
-      text: chat.roomId.isEmpty ? AppConstants.defaultRoomId : chat.roomId,
-    );
-  }
+  final _nameController = TextEditingController();
+  final _roomController = TextEditingController(
+    text: AppConstants.defaultRoomId,
+  );
 
   @override
   void dispose() {
@@ -39,33 +28,15 @@ class _JoinScreenState extends State<JoinScreen> {
     super.dispose();
   }
 
-  Future<void> _join() async {
+  void _onJoinPressed() {
     if (!_formKey.currentState!.validate()) return;
-
-    final chat = context.read<ChatProvider>();
-    await chat.join(
-      username: _nameController.text,
-      roomId: _roomController.text,
-    );
-
-    if (!mounted) return;
-
-    if (chat.connectionStatus == ConnectionStatus.connected ||
-        chat.connectionStatus == ConnectionStatus.connecting ||
-        chat.connectionStatus == ConnectionStatus.reconnecting) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const ChatScreen()),
-      );
-    } else if (chat.errorMessage != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(chat.errorMessage!)),
-      );
-    }
+    FocusScope.of(context).unfocus();
   }
 
   @override
   Widget build(BuildContext context) {
-    final chat = context.watch<ChatProvider>();
+    final width = MediaQuery.sizeOf(context).width;
+    final horizontal = width < 360 ? AppSpacing.md : AppSpacing.lg;
 
     return Scaffold(
       body: SafeArea(
@@ -74,9 +45,16 @@ class _JoinScreenState extends State<JoinScreen> {
             Expanded(
               child: Center(
                 child: SingleChildScrollView(
-                  padding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
+                  padding: EdgeInsets.fromLTRB(
+                    horizontal,
+                    AppSpacing.lg,
+                    horizontal,
+                    AppSpacing.sm,
+                  ),
                   child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 460),
+                    constraints: const BoxConstraints(
+                      maxWidth: AppSpacing.maxContentWidth,
+                    ),
                     child: Form(
                       key: _formKey,
                       child: Column(
@@ -84,109 +62,133 @@ class _JoinScreenState extends State<JoinScreen> {
                         children: [
                           const Row(
                             children: [
-                              MsMark(size: 36, showGlow: true),
-                              SizedBox(width: 12),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'NovaChat AI',
-                                    style: TextStyle(
-                                      fontSize: 22,
-                                      fontWeight: FontWeight.w800,
+                              MsMark(size: 40, showGlow: true),
+                              SizedBox(width: AppSpacing.md),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      AppConstants.appName,
+                                      style: TextStyle(
+                                        fontSize: 22,
+                                        fontWeight: FontWeight.w800,
+                                        color: AppColors.textPrimary,
+                                      ),
                                     ),
-                                  ),
-                                  Text(
-                                    'by MS',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w600,
-                                      color: AppColors.textSecondary,
-                                      letterSpacing: 0.8,
+                                    Text(
+                                      'by ${AppConstants.brandInitials}',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                        letterSpacing: 0.8,
+                                        color: AppColors.textSecondary,
+                                      ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                             ],
                           ),
-                          const SizedBox(height: 28),
+                          const SizedBox(height: AppSpacing.lg),
                           Container(
-                            padding: const EdgeInsets.all(22),
+                            padding: const EdgeInsets.all(AppSpacing.md),
+                            decoration: BoxDecoration(
+                              gradient: AppColors.primaryGradient,
+                              borderRadius: BorderRadius.circular(
+                                AppSpacing.radiusLg,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: AppColors.purple.withValues(
+                                    alpha: 0.28,
+                                  ),
+                                  blurRadius: 20,
+                                  offset: const Offset(0, 8),
+                                ),
+                              ],
+                            ),
+                            child: const Row(
+                              children: [
+                                Icon(
+                                  Icons.auto_awesome_rounded,
+                                  color: Colors.white,
+                                  size: 28,
+                                ),
+                                SizedBox(width: AppSpacing.md),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Join a room',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w800,
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                      SizedBox(height: 4),
+                                      Text(
+                                        'Chat in real time with AI tools next.',
+                                        style: TextStyle(
+                                          color: Colors.white70,
+                                          fontSize: 13,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: AppSpacing.lg),
+                          Container(
+                            padding: const EdgeInsets.all(AppSpacing.lg),
                             decoration: BoxDecoration(
                               color: AppColors.elevated,
-                              borderRadius: BorderRadius.circular(24),
+                              borderRadius: BorderRadius.circular(
+                                AppSpacing.radiusXl,
+                              ),
                               border: Border.all(
                                 color: Colors.white.withValues(alpha: 0.06),
                               ),
                             ),
                             child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  'Join a room',
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .titleLarge
-                                      ?.copyWith(fontWeight: FontWeight.w800),
-                                ),
-                                const SizedBox(height: 6),
-                                const Text(
-                                  'Start chatting in real time.',
-                                  style: TextStyle(
-                                    color: AppColors.textSecondary,
-                                  ),
-                                ),
-                                const SizedBox(height: 20),
                                 TextFormField(
                                   controller: _nameController,
                                   textInputAction: TextInputAction.next,
                                   validator: Validators.username,
                                   decoration: const InputDecoration(
                                     labelText: 'Display name',
-                                    prefixIcon:
-                                        Icon(Icons.person_outline_rounded),
+                                    prefixIcon: Icon(
+                                      Icons.person_outline_rounded,
+                                    ),
                                   ),
                                 ),
-                                const SizedBox(height: 14),
+                                const SizedBox(height: AppSpacing.md),
                                 TextFormField(
                                   controller: _roomController,
                                   textInputAction: TextInputAction.done,
                                   validator: Validators.roomId,
-                                  onFieldSubmitted: (_) => _join(),
+                                  onFieldSubmitted: (_) => _onJoinPressed(),
                                   decoration: const InputDecoration(
                                     labelText: 'Room ID',
                                     prefixIcon: Icon(Icons.hub_outlined),
-                                    helperText: 'Use general to chat with PulseChat',
+                                    helperText: 'Default room: general',
                                   ),
                                 ),
-                                const SizedBox(height: 20),
-                                SizedBox(
-                                  width: double.infinity,
-                                  height: 52,
-                                  child: FilledButton(
-                                    onPressed: chat.isJoining ? null : _join,
-                                    style: FilledButton.styleFrom(
-                                      backgroundColor: AppColors.electricPurple,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(16),
-                                      ),
+                                const SizedBox(height: AppSpacing.lg),
+                                FilledButton(
+                                  onPressed: _onJoinPressed,
+                                  child: const Text(
+                                    'Join Conversation',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 16,
                                     ),
-                                    child: chat.isJoining
-                                        ? const SizedBox(
-                                            width: 22,
-                                            height: 22,
-                                            child: CircularProgressIndicator(
-                                              strokeWidth: 2.4,
-                                              color: Colors.white,
-                                            ),
-                                          )
-                                        : const Text(
-                                            'Join Conversation',
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.w700,
-                                              fontSize: 16,
-                                            ),
-                                          ),
                                   ),
                                 ),
                               ],
