@@ -27,7 +27,7 @@ wss.on('connection', (ws) => {
 
   roomManager.send(ws, {
     type: 'system',
-    content: 'Connected to realtime chat server',
+    content: 'Connected',
     timestamp: new Date().toISOString(),
   });
 
@@ -48,7 +48,6 @@ wss.on('connection', (ws) => {
   });
 });
 
-// Drop dead connections so presence stays accurate.
 const heartbeat = setInterval(() => {
   for (const ws of wss.clients) {
     if (!ws.isAlive) {

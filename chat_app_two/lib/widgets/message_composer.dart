@@ -76,7 +76,7 @@ class MessageComposer extends StatelessWidget {
                     if (canSend) onSend();
                   },
                   decoration: const InputDecoration(
-                    hintText: 'Message or /ai ask something…',
+                    hintText: 'Message or /ai …',
                     border: InputBorder.none,
                     enabledBorder: InputBorder.none,
                     focusedBorder: InputBorder.none,

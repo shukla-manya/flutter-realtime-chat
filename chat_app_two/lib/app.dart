@@ -13,7 +13,7 @@ class NovaChatApp extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (_) => ChatProvider(),
       child: MaterialApp(
-        title: 'NovaChat AI',
+        title: 'NovaChat AI | MS',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.dark(),
         home: const SplashScreen(),

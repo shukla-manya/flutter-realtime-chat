@@ -15,7 +15,7 @@ class PulseChatApp extends StatelessWidget {
       child: Consumer<ChatProvider>(
         builder: (context, chat, _) {
           return MaterialApp(
-            title: 'PulseChat',
+            title: 'PulseChat | MS',
             debugShowCheckedModeBanner: false,
             theme: AppTheme.light(),
             darkTheme: AppTheme.dark(),

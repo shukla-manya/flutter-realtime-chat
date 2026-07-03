@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../core/constants/app_constants.dart';
 import '../core/theme/app_colors.dart';
+import '../widgets/ms_mark.dart';
 import 'join_screen.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -61,19 +62,7 @@ class _SplashScreenState extends State<SplashScreen>
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Container(
-                    width: 96,
-                    height: 96,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.18),
-                      borderRadius: BorderRadius.circular(28),
-                    ),
-                    child: const Icon(
-                      Icons.chat_bubble_rounded,
-                      size: 48,
-                      color: Colors.white,
-                    ),
-                  ),
+                  const MsMark(size: 96, showGlow: true),
                   const SizedBox(height: 24),
                   Text(
                     AppConstants.appName,
@@ -83,7 +72,17 @@ class _SplashScreenState extends State<SplashScreen>
                           letterSpacing: -0.5,
                         ),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 6),
+                  Text(
+                    'by MS',
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.85),
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 1.2,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
                   Text(
                     AppConstants.appSubtitle,
                     style: TextStyle(

@@ -6,6 +6,7 @@ import '../core/theme/app_colors.dart';
 import '../models/chat_message.dart';
 import '../models/connection_status.dart';
 import '../providers/chat_provider.dart';
+import '../widgets/brand_footer.dart';
 import '../widgets/connection_banner.dart';
 import '../widgets/empty_chat_state.dart';
 import '../widgets/message_bubble.dart';
@@ -101,6 +102,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 },
                 child: const Text('Leave room'),
               ),
+              const BrandFooter(),
             ],
           ),
         );

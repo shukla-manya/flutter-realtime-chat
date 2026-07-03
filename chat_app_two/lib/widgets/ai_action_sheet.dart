@@ -137,14 +137,14 @@ class _AiActionSheetBodyState extends State<_AiActionSheetBody> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Nova AI Tools',
+                          'AI tools',
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w800,
                           ),
                         ),
                         Text(
-                          'Powered securely by the backend',
+                          'Smart replies, rewrite, and summaries',
                           style: TextStyle(
                             color: AppColors.textSecondary,
                             fontSize: 13,
@@ -248,7 +248,7 @@ class _AiActionSheetBodyState extends State<_AiActionSheetBody> {
               if (_suggestions.isNotEmpty) ...[
                 const SizedBox(height: 12),
                 const Text(
-                  'Smart replies',
+                  'Try a smart reply',
                   style: TextStyle(fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: 8),
@@ -274,8 +274,8 @@ class _AiActionSheetBodyState extends State<_AiActionSheetBody> {
                     children: [
                       Text(
                         _completedAction == AiAction.summarize
-                            ? 'Conversation summary'
-                            : 'AI result',
+                            ? 'Summarize this chat'
+                            : 'Result',
                         style: const TextStyle(
                           fontWeight: FontWeight.w700,
                           color: AppColors.electricPurple,

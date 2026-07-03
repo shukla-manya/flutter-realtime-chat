@@ -52,7 +52,7 @@ class MessageComposer extends StatelessWidget {
                     if (canSend) onSend();
                   },
                   decoration: const InputDecoration(
-                    hintText: 'Write a message…',
+                    hintText: 'Message…',
                     border: InputBorder.none,
                     enabledBorder: InputBorder.none,
                     focusedBorder: InputBorder.none,

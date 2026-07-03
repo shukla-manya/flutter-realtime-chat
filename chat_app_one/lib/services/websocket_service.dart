@@ -64,7 +64,6 @@ class WebSocketService {
       final channel = WebSocketChannel.connect(uri);
       _channel = channel;
 
-      // Wait briefly for the handshake to settle.
       await channel.ready.timeout(const Duration(seconds: 8));
 
       if (_disposed || _manualDisconnect) {
@@ -104,9 +103,7 @@ class WebSocketService {
       } else if (decoded is Map) {
         _eventController.add(Map<String, dynamic>.from(decoded));
       }
-    } catch (_) {
-      // Ignore malformed frames; server also validates outbound payloads.
-    }
+    } catch (_) {}
   }
 
   void _onUnexpectedClose() {
@@ -180,9 +177,7 @@ class WebSocketService {
     if (_disposed || !isConnected || _channel == null) return;
     try {
       _channel!.sink.add(jsonEncode(payload));
-    } catch (_) {
-      // Swallow send errors; reconnect path will recover.
-    }
+    } catch (_) {}
   }
 
   Future<void> disconnect() async {

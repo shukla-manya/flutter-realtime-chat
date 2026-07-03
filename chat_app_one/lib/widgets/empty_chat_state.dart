@@ -18,26 +18,19 @@ class EmptyChatState extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              width: 88,
-              height: 88,
+              width: 72,
+              height: 72,
               decoration: BoxDecoration(
-                gradient: AppColors.primaryGradient,
-                borderRadius: BorderRadius.circular(28),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.primary.withValues(alpha: 0.28),
-                    blurRadius: 24,
-                    offset: const Offset(0, 10),
-                  ),
-                ],
+                color: AppColors.primary.withValues(alpha: isDark ? 0.2 : 0.1),
+                borderRadius: BorderRadius.circular(22),
               ),
               child: const Icon(
                 Icons.chat_bubble_outline_rounded,
-                color: Colors.white,
-                size: 40,
+                color: AppColors.primary,
+                size: 32,
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 18),
             Text(
               'No messages yet',
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
@@ -46,7 +39,7 @@ class EmptyChatState extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              'Say hello in #$roomId and start the conversation.',
+              'Send the first message in #$roomId.',
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: isDark ? Colors.white60 : AppColors.textMuted,

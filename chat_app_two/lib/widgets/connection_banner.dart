@@ -18,9 +18,9 @@ class ConnectionBanner extends StatelessWidget {
     final isError = status == ConnectionStatus.error;
     final color = isError ? AppColors.error : AppColors.warning;
     final text = isError
-        ? 'Connection lost. Check the server and try rejoining.'
+        ? 'Connection lost'
         : status == ConnectionStatus.reconnecting
-            ? 'Reconnecting to NovaChat…'
+            ? 'Reconnecting…'
             : 'Connecting…';
 
     return Container(

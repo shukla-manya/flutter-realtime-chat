@@ -6,6 +6,8 @@ import '../core/theme/app_colors.dart';
 import '../core/utils/validators.dart';
 import '../models/connection_status.dart';
 import '../providers/chat_provider.dart';
+import '../widgets/brand_footer.dart';
+import '../widgets/ms_mark.dart';
 import 'chat_screen.dart';
 
 class JoinScreen extends StatefulWidget {
@@ -68,142 +70,147 @@ class _JoinScreenState extends State<JoinScreen> {
 
     return Scaffold(
       body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 460),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(24),
-                      decoration: BoxDecoration(
-                        gradient: AppColors.primaryGradient,
-                        borderRadius: BorderRadius.circular(24),
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppColors.primary.withValues(alpha: 0.28),
-                            blurRadius: 24,
-                            offset: const Offset(0, 12),
-                          ),
-                        ],
-                      ),
+        child: Column(
+          children: [
+            Expanded(
+              child: Center(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 460),
+                    child: Form(
+                      key: _formKey,
                       child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          Container(
-                            width: 72,
-                            height: 72,
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.18),
-                              borderRadius: BorderRadius.circular(22),
-                            ),
-                            child: const Icon(
-                              Icons.wifi_tethering_rounded,
-                              color: Colors.white,
-                              size: 34,
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            'Welcome to PulseChat',
-                            style: Theme.of(context)
-                                .textTheme
-                                .headlineSmall
-                                ?.copyWith(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w800,
-                                ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            'Join a room and chat in real time over WebSocket.',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.9),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                    Container(
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        color: isDark ? AppColors.darkSurface : AppColors.white,
-                        borderRadius: BorderRadius.circular(24),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black
-                                .withValues(alpha: isDark ? 0.25 : 0.06),
-                            blurRadius: 18,
-                            offset: const Offset(0, 8),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        children: [
-                          TextFormField(
-                            controller: _nameController,
-                            textInputAction: TextInputAction.next,
-                            validator: Validators.username,
-                            decoration: const InputDecoration(
-                              labelText: 'Display name',
-                              prefixIcon: Icon(Icons.person_outline_rounded),
-                            ),
-                          ),
-                          const SizedBox(height: 14),
-                          TextFormField(
-                            controller: _roomController,
-                            textInputAction: TextInputAction.done,
-                            validator: Validators.roomId,
-                            onFieldSubmitted: (_) => _join(),
-                            decoration: const InputDecoration(
-                              labelText: 'Room ID',
-                              prefixIcon: Icon(Icons.meeting_room_outlined),
-                              helperText: 'Default room: general',
-                            ),
-                          ),
-                          const SizedBox(height: 20),
-                          SizedBox(
-                            width: double.infinity,
-                            height: 52,
-                            child: FilledButton(
-                              onPressed: chat.isJoining ? null : _join,
-                              style: FilledButton.styleFrom(
-                                backgroundColor: AppColors.primary,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
+                          const Row(
+                            children: [
+                              MsMark(size: 36),
+                              SizedBox(width: 12),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'PulseChat',
+                                    style: TextStyle(
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.w800,
+                                    ),
+                                  ),
+                                  Text(
+                                    'by MS',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                      color: AppColors.textMuted,
+                                      letterSpacing: 0.8,
+                                    ),
+                                  ),
+                                ],
                               ),
-                              child: chat.isJoining
-                                  ? const SizedBox(
-                                      width: 22,
-                                      height: 22,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2.4,
-                                        color: Colors.white,
-                                      ),
-                                    )
-                                  : const Text(
-                                      'Join Conversation',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w700,
-                                        fontSize: 16,
+                            ],
+                          ),
+                          const SizedBox(height: 28),
+                          Container(
+                            padding: const EdgeInsets.all(22),
+                            decoration: BoxDecoration(
+                              color:
+                                  isDark ? AppColors.darkSurface : AppColors.white,
+                              borderRadius: BorderRadius.circular(24),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black
+                                      .withValues(alpha: isDark ? 0.25 : 0.06),
+                                  blurRadius: 18,
+                                  offset: const Offset(0, 8),
+                                ),
+                              ],
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Join a room',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleLarge
+                                      ?.copyWith(fontWeight: FontWeight.w800),
+                                ),
+                                const SizedBox(height: 6),
+                                Text(
+                                  'Start chatting in real time.',
+                                  style: TextStyle(
+                                    color: isDark
+                                        ? Colors.white70
+                                        : AppColors.textMuted,
+                                  ),
+                                ),
+                                const SizedBox(height: 20),
+                                TextFormField(
+                                  controller: _nameController,
+                                  textInputAction: TextInputAction.next,
+                                  validator: Validators.username,
+                                  decoration: const InputDecoration(
+                                    labelText: 'Display name',
+                                    prefixIcon:
+                                        Icon(Icons.person_outline_rounded),
+                                  ),
+                                ),
+                                const SizedBox(height: 14),
+                                TextFormField(
+                                  controller: _roomController,
+                                  textInputAction: TextInputAction.done,
+                                  validator: Validators.roomId,
+                                  onFieldSubmitted: (_) => _join(),
+                                  decoration: const InputDecoration(
+                                    labelText: 'Room ID',
+                                    prefixIcon:
+                                        Icon(Icons.meeting_room_outlined),
+                                    helperText: 'Default room: general',
+                                  ),
+                                ),
+                                const SizedBox(height: 20),
+                                SizedBox(
+                                  width: double.infinity,
+                                  height: 52,
+                                  child: FilledButton(
+                                    onPressed: chat.isJoining ? null : _join,
+                                    style: FilledButton.styleFrom(
+                                      backgroundColor: AppColors.primary,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(16),
                                       ),
                                     ),
+                                    child: chat.isJoining
+                                        ? const SizedBox(
+                                            width: 22,
+                                            height: 22,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2.4,
+                                              color: Colors.white,
+                                            ),
+                                          )
+                                        : const Text(
+                                            'Join Conversation',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.w700,
+                                              fontSize: 16,
+                                            ),
+                                          ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ],
                       ),
                     ),
-                  ],
+                  ),
                 ),
               ),
             ),
-          ),
+            const BrandFooter(),
+          ],
         ),
       ),
     );

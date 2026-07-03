@@ -82,9 +82,7 @@ function parseSmartReplies(raw) {
           .slice(0, 3);
       }
     }
-  } catch (_) {
-    // Fall through to line parsing.
-  }
+  } catch (_) {}
 
   const lines = raw
     .split('\n')

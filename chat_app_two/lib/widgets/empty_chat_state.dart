@@ -16,35 +16,31 @@ class EmptyChatState extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              width: 92,
-              height: 92,
+              width: 72,
+              height: 72,
               decoration: BoxDecoration(
-                gradient: AppColors.primaryGradient,
-                borderRadius: BorderRadius.circular(28),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.electricPurple.withValues(alpha: 0.35),
-                    blurRadius: 28,
-                    offset: const Offset(0, 10),
-                  ),
-                ],
+                color: AppColors.electricPurple.withValues(alpha: 0.16),
+                borderRadius: BorderRadius.circular(22),
+                border: Border.all(
+                  color: AppColors.electricPurple.withValues(alpha: 0.3),
+                ),
               ),
               child: const Icon(
-                Icons.auto_awesome_rounded,
-                color: Colors.white,
-                size: 40,
+                Icons.forum_outlined,
+                color: AppColors.neonCyan,
+                size: 32,
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 18),
             Text(
-              'Start the signal',
+              'No messages yet',
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.w700,
                   ),
             ),
             const SizedBox(height: 8),
             Text(
-              'Chat in #$roomId, or tap the sparkle to use AI tools.',
+              'Send the first message in #$roomId.',
               textAlign: TextAlign.center,
               style: const TextStyle(
                 color: AppColors.textSecondary,

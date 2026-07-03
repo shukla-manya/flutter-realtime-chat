@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../core/constants/app_constants.dart';
 import '../core/theme/app_colors.dart';
+import '../widgets/ms_mark.dart';
 import 'join_screen.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -25,7 +26,7 @@ class _SplashScreenState extends State<SplashScreen>
       duration: const Duration(milliseconds: 1400),
     )..repeat(reverse: true);
 
-    _pulse = Tween<double>(begin: 0.92, end: 1.08).animate(
+    _pulse = Tween<double>(begin: 0.94, end: 1.06).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
     );
     _fade = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
@@ -73,26 +74,7 @@ class _SplashScreenState extends State<SplashScreen>
               children: [
                 ScaleTransition(
                   scale: _pulse,
-                  child: Container(
-                    width: 100,
-                    height: 100,
-                    decoration: BoxDecoration(
-                      gradient: AppColors.primaryGradient,
-                      borderRadius: BorderRadius.circular(30),
-                      boxShadow: [
-                        BoxShadow(
-                          color:
-                              AppColors.electricPurple.withValues(alpha: 0.45),
-                          blurRadius: 30,
-                        ),
-                      ],
-                    ),
-                    child: const Icon(
-                      Icons.auto_awesome_rounded,
-                      size: 46,
-                      color: Colors.white,
-                    ),
-                  ),
+                  child: const MsMark(size: 100, showGlow: true),
                 ),
                 const SizedBox(height: 24),
                 Text(
@@ -102,7 +84,17 @@ class _SplashScreenState extends State<SplashScreen>
                         letterSpacing: -0.4,
                       ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 6),
+                const Text(
+                  'by MS',
+                  style: TextStyle(
+                    color: AppColors.textSecondary,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 1.2,
+                  ),
+                ),
+                const SizedBox(height: 12),
                 const Text(
                   AppConstants.appSubtitle,
                   style: TextStyle(

@@ -42,7 +42,7 @@ function handleJoin(roomManager, ws, payload) {
 
   roomManager.send(ws, {
     type: 'system',
-    content: `Welcome to #${roomId}, ${username}!`,
+    content: `Joined #${roomId}`,
     timestamp: nowIso(),
   });
 
@@ -98,7 +98,6 @@ function handleChatMessage(roomManager, ws, payload) {
     return;
   }
 
-  // Detect /ai command and route through AI pipeline while still showing the user question.
   if (message.content.startsWith('/ai ')) {
     const question = sanitizeText(message.content.slice(4));
     roomManager.broadcast(message.roomId, message);
@@ -209,8 +208,6 @@ async function processAiRequest(roomManager, ws, payload) {
       response.content = result.content;
     }
 
-    // Private AI helpers (rewrite/smart_reply/summarize) go only to requester.
-    // Broadcast ask answers already went to the room as chat messages.
     roomManager.send(ws, response);
   } catch (err) {
     sendError(

@@ -112,7 +112,6 @@ class ChatProvider extends ChangeNotifier {
       timestamp: DateTime.now().toUtc(),
     );
 
-    // Optimistic local insert with de-dupe when broadcast returns.
     _addMessage(message);
     _service.sendMessage(
       id: message.id,

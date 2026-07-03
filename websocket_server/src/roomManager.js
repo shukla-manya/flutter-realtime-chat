@@ -2,7 +2,6 @@ const { v4: uuidv4 } = require('uuid');
 
 class RoomManager {
   constructor() {
-    /** @type {Map<string, Set<import('ws').WebSocket>>} */
     this.rooms = new Map();
   }
 

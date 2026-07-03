@@ -2,10 +2,6 @@ import 'dart:io' show Platform;
 
 import 'package:flutter/foundation.dart';
 
-/// WebSocket URL configuration for local demos.
-///
-/// Override at launch:
-/// `flutter run --dart-define=WS_URL=ws://192.168.1.10:8080`
 class AppConfig {
   static const String _envUrl = String.fromEnvironment('WS_URL');
 

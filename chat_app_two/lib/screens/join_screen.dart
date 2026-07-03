@@ -6,6 +6,8 @@ import '../core/theme/app_colors.dart';
 import '../core/utils/validators.dart';
 import '../models/connection_status.dart';
 import '../providers/chat_provider.dart';
+import '../widgets/brand_footer.dart';
+import '../widgets/ms_mark.dart';
 import 'chat_screen.dart';
 
 class JoinScreen extends StatefulWidget {
@@ -67,126 +69,138 @@ class _JoinScreenState extends State<JoinScreen> {
 
     return Scaffold(
       body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 460),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(24),
-                      decoration: BoxDecoration(
-                        gradient: AppColors.primaryGradient,
-                        borderRadius: BorderRadius.circular(24),
-                        boxShadow: [
-                          BoxShadow(
-                            color:
-                                AppColors.electricPurple.withValues(alpha: 0.3),
-                            blurRadius: 24,
-                            offset: const Offset(0, 12),
-                          ),
-                        ],
-                      ),
-                      child: const Column(
-                        children: [
-                          Icon(
-                            Icons.auto_awesome_rounded,
-                            color: Colors.white,
-                            size: 40,
-                          ),
-                          SizedBox(height: 14),
-                          Text(
-                            'Enter NovaChat AI',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 24,
-                              fontWeight: FontWeight.w800,
-                            ),
-                          ),
-                          SizedBox(height: 8),
-                          Text(
-                            'Realtime chat with Groq-powered AI tools.',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(color: Colors.white70),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                    Container(
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        color: AppColors.elevated,
-                        borderRadius: BorderRadius.circular(24),
-                        border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.06),
-                        ),
-                      ),
+        child: Column(
+          children: [
+            Expanded(
+              child: Center(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 460),
+                    child: Form(
+                      key: _formKey,
                       child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          TextFormField(
-                            controller: _nameController,
-                            textInputAction: TextInputAction.next,
-                            validator: Validators.username,
-                            decoration: const InputDecoration(
-                              labelText: 'Display name',
-                              prefixIcon: Icon(Icons.person_outline_rounded),
-                            ),
-                          ),
-                          const SizedBox(height: 14),
-                          TextFormField(
-                            controller: _roomController,
-                            textInputAction: TextInputAction.done,
-                            validator: Validators.roomId,
-                            onFieldSubmitted: (_) => _join(),
-                            decoration: const InputDecoration(
-                              labelText: 'Room ID',
-                              prefixIcon: Icon(Icons.hub_outlined),
-                              helperText: 'Join “general” to chat with PulseChat',
-                            ),
-                          ),
-                          const SizedBox(height: 20),
-                          SizedBox(
-                            width: double.infinity,
-                            height: 52,
-                            child: FilledButton(
-                              onPressed: chat.isJoining ? null : _join,
-                              style: FilledButton.styleFrom(
-                                backgroundColor: AppColors.electricPurple,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
+                          const Row(
+                            children: [
+                              MsMark(size: 36, showGlow: true),
+                              SizedBox(width: 12),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'NovaChat AI',
+                                    style: TextStyle(
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.w800,
+                                    ),
+                                  ),
+                                  Text(
+                                    'by MS',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                      color: AppColors.textSecondary,
+                                      letterSpacing: 0.8,
+                                    ),
+                                  ),
+                                ],
                               ),
-                              child: chat.isJoining
-                                  ? const SizedBox(
-                                      width: 22,
-                                      height: 22,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2.4,
-                                        color: Colors.white,
-                                      ),
-                                    )
-                                  : const Text(
-                                      'Join Conversation',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w700,
-                                        fontSize: 16,
+                            ],
+                          ),
+                          const SizedBox(height: 28),
+                          Container(
+                            padding: const EdgeInsets.all(22),
+                            decoration: BoxDecoration(
+                              color: AppColors.elevated,
+                              borderRadius: BorderRadius.circular(24),
+                              border: Border.all(
+                                color: Colors.white.withValues(alpha: 0.06),
+                              ),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Join a room',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleLarge
+                                      ?.copyWith(fontWeight: FontWeight.w800),
+                                ),
+                                const SizedBox(height: 6),
+                                const Text(
+                                  'Start chatting in real time.',
+                                  style: TextStyle(
+                                    color: AppColors.textSecondary,
+                                  ),
+                                ),
+                                const SizedBox(height: 20),
+                                TextFormField(
+                                  controller: _nameController,
+                                  textInputAction: TextInputAction.next,
+                                  validator: Validators.username,
+                                  decoration: const InputDecoration(
+                                    labelText: 'Display name',
+                                    prefixIcon:
+                                        Icon(Icons.person_outline_rounded),
+                                  ),
+                                ),
+                                const SizedBox(height: 14),
+                                TextFormField(
+                                  controller: _roomController,
+                                  textInputAction: TextInputAction.done,
+                                  validator: Validators.roomId,
+                                  onFieldSubmitted: (_) => _join(),
+                                  decoration: const InputDecoration(
+                                    labelText: 'Room ID',
+                                    prefixIcon: Icon(Icons.hub_outlined),
+                                    helperText: 'Use general to chat with PulseChat',
+                                  ),
+                                ),
+                                const SizedBox(height: 20),
+                                SizedBox(
+                                  width: double.infinity,
+                                  height: 52,
+                                  child: FilledButton(
+                                    onPressed: chat.isJoining ? null : _join,
+                                    style: FilledButton.styleFrom(
+                                      backgroundColor: AppColors.electricPurple,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(16),
                                       ),
                                     ),
+                                    child: chat.isJoining
+                                        ? const SizedBox(
+                                            width: 22,
+                                            height: 22,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2.4,
+                                              color: Colors.white,
+                                            ),
+                                          )
+                                        : const Text(
+                                            'Join Conversation',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.w700,
+                                              fontSize: 16,
+                                            ),
+                                          ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ],
                       ),
                     ),
-                  ],
+                  ),
                 ),
               ),
             ),
-          ),
+            const BrandFooter(),
+          ],
         ),
       ),
     );
