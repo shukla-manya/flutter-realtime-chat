@@ -1,31 +1,81 @@
 # Flutter Realtime Chat
 
-PulseChat and NovaChat AI — two Flutter apps that share one Node.js WebSocket backend.
-
-This project demonstrates Flutter development, Dart, WebSocket communication, real-time messaging, state management, Node.js backend integration, and Groq AI integration.
-
-| App | Purpose |
-|---|---|
-| **PulseChat** (`chat_app_one`) | Human-to-human realtime chat |
-| **NovaChat AI** (`chat_app_two`) | Same realtime chat + Groq-powered AI tools |
-| **WebSocket Server** (`websocket_server`) | Shared rooms, presence, typing, AI proxy |
-
-Both apps connect to the **same** backend and can chat in the same room instantly.
+Two Flutter chat apps that talk to each other through one shared Node.js WebSocket server.
 
 ## Assignment objective
 
-Build two sample Flutter chat apps over WebSocket — simple enough to verify core skills, polished enough for a live demo.
+Build a simple but complete realtime chat system in Flutter using WebSocket. The project shows:
 
-## Screenshots
+- Flutter and Dart (null safety, Material 3)
+- Realtime messaging over WebSocket
+- Provider state management
+- Connection lifecycle handling
+- A small Node.js backend with rooms, presence, and typing
+- Optional Groq AI features in the second app (API key stays on the server)
 
-> Add screenshots here after running the demo.
+## Apps
 
-- `docs/screenshots/pulsechat-join.png`
-- `docs/screenshots/pulsechat-chat.png`
-- `docs/screenshots/novachat-chat.png`
-- `docs/screenshots/novachat-ai-sheet.png`
+### PulseChat (`chat_app_one`)
 
-## Architecture overview
+Human-to-human chat with a clean indigo/violet UI, light and dark themes, typing indicators, online count, and reconnect handling.
+
+Browser title: `PulseChat | MS`
+
+### NovaChat AI (`chat_app_two`)
+
+Same realtime chat protocol as PulseChat, with a dark UI and Groq-powered tools:
+
+- Smart Replies
+- Rewrite Professionally / Friendly / Make Concise
+- Summarize Chat
+- `/ai <question>` command
+
+Browser title: `NovaChat AI | MS`
+
+Both apps use the MS monogram and the footer:
+
+`by MANYA SHUKLA 2026`
+
+### Shared WebSocket backend (`websocket_server`)
+
+In-memory rooms, message broadcast, typing, presence, disconnect cleanup, and Groq AI requests over WebSocket.
+
+## Features
+
+- Join a room with a display name
+- Send and receive messages in realtime
+- Typing indicators
+- Online participant count
+- Connection status and limited reconnect with backoff
+- Message IDs and duplicate prevention
+- Room isolation
+- Theme toggle in PulseChat
+- Groq AI tools in NovaChat AI (server-side only)
+- Configurable WebSocket URL for emulator, simulator, web, and physical devices
+
+## Tech stack
+
+**Flutter apps**
+
+- Flutter / Dart (null safety)
+- Material 3
+- `provider`
+- `web_socket_channel`
+- `intl`
+- `shared_preferences`
+- `google_fonts`
+- `uuid`
+
+**Backend**
+
+- Node.js
+- Express
+- `ws`
+- `cors`
+- `dotenv`
+- Groq Chat Completions API (HTTP from the server only)
+
+## Architecture
 
 ```mermaid
 flowchart LR
@@ -43,95 +93,89 @@ F --> G[Groq API]
 flutter-realtime-chat/
 ├── chat_app_one/          # PulseChat
 ├── chat_app_two/          # NovaChat AI
-├── websocket_server/      # Shared Node.js backend
+├── websocket_server/      # Shared backend
+│   ├── src/
+│   ├── .env.example
+│   └── package.json
+├── scripts/               # APK build helpers
+│   ├── build_apk.sh
+│   └── .env.example
 ├── README.md
 └── .gitignore
 ```
 
-Each Flutter app follows a clean, assignment-friendly layout:
+## WebSocket flow
 
-```text
-lib/
-├── main.dart
-├── app.dart
-├── core/
-├── models/
-├── services/
-├── providers/
-├── screens/
-└── widgets/
-```
-
-## Tech stack
-
-**Flutter apps**
-
-- Flutter + Dart (null safety)
-- Material 3
-- `provider`
-- `web_socket_channel`
-- `intl`
-- `shared_preferences`
-- `google_fonts`
-- `uuid`
-
-**Backend**
-
-- Node.js + Express
-- `ws`
-- `cors`
-- `dotenv`
-- `uuid`
-- Groq API (server-side only)
-
-## WebSocket communication flow
-
-1. Client connects to `ws://...:8080`
-2. Client sends `join` with username + roomId
-3. Server stores client in an in-memory room map
-4. Server broadcasts system + presence events
-5. Clients send `message` / `typing`
-6. Server broadcasts to everyone in that room
-7. NovaChat AI sends `ai_request`
-8. Server calls Groq securely and returns `ai_response`
-9. `/ai <question>` also broadcasts an AI chat message with `isAi: true`
+1. Client connects to `ws://…:8080`
+2. Client sends `join` with `username` and `roomId`
+3. Server stores the client in an in-memory room
+4. Server broadcasts `system` and `presence` events
+5. Clients send `message` and `typing`
+6. Server broadcasts only to clients in that room
+7. NovaChat AI can send `ai_request`
+8. Server calls Groq and returns `ai_response` to the requester
+9. `/ai <question>` broadcasts the user message, then one room message with `isAi: true`
 
 ## Message protocol
 
 | Type | Direction | Purpose |
 |---|---|---|
 | `join` | client → server | Enter a room |
-| `leave` | client → server | Leave current room |
+| `leave` | client → server | Leave the current room |
 | `message` | both | Chat message |
 | `typing` | both | Typing start/stop |
 | `presence` | server → clients | Online count |
 | `system` | server → clients | Join/leave notices |
-| `ai_request` | client → server | Ask backend AI |
-| `ai_response` | server → client | AI result |
-| `error` | server → client | Validation / AI errors |
+| `ai_request` | client → server | Ask the backend for AI help |
+| `ai_response` | server → client | Private AI result |
+| `error` | server → client | Validation or AI errors |
 
 Example chat message:
 
 ```json
 {
   "type": "message",
-  "id": "unique-message-id",
+  "id": "unique-id",
   "roomId": "general",
   "sender": "Manya",
-  "content": "Hello!",
-  "timestamp": "2026-07-04T10:30:00.000Z",
-  "isAi": false
+  "content": "Hello",
+  "timestamp": "2026-07-04T10:30:00.000Z"
 }
 ```
 
-## How to run backend
+Example AI request:
+
+```json
+{
+  "type": "ai_request",
+  "action": "ask",
+  "roomId": "general",
+  "username": "Reviewer",
+  "content": "Explain WebSocket simply",
+  "requestId": "unique-request-id"
+}
+```
+
+Supported AI actions: `ask`, `smart_reply`, `rewrite_professional`, `rewrite_friendly`, `make_concise`, `summarize`.
+
+## Groq AI flow
+
+1. NovaChat AI sends `ai_request` over WebSocket
+2. Backend validates input and applies per-client rate limits
+3. Backend calls Groq with `GROQ_API_KEY` from `websocket_server/.env`
+4. Backend returns `ai_response` only to the requesting client
+5. For `/ai …`, the answer is sent as a room `message` with `isAi: true` (no private `ai_response`, so the UI does not show it twice)
+
+The Flutter apps never receive or store the API key.
+
+## Setup
+
+### Backend
 
 ```bash
 cd websocket_server
 cp .env.example .env
-# Edit .env:
-# GROQ_API_KEY=your_key
-# GROQ_MODEL=llama-3.3-70b-versatile
+# edit .env — set GROQ_API_KEY and GROQ_MODEL
 npm install
 npm start
 ```
@@ -148,7 +192,14 @@ Expected:
 {"status":"ok","service":"realtime-chat-server"}
 ```
 
-## How to run App 1 (PulseChat)
+Backend protocol audit (no Flutter required):
+
+```bash
+cd websocket_server
+npm run audit
+```
+
+### PulseChat
 
 ```bash
 cd chat_app_one
@@ -157,7 +208,7 @@ flutter pub get
 flutter run
 ```
 
-## How to run App 2 (NovaChat AI)
+### NovaChat AI
 
 ```bash
 cd chat_app_two
@@ -166,203 +217,120 @@ flutter pub get
 flutter run
 ```
 
-> `flutter create .` only generates platform folders (`android/`, `ios/`, etc.) and keeps existing `lib/` code.
+`flutter create .` generates platform folders (`android/`, `ios/`, etc.) and keeps the existing `lib/` code.
 
-## Networking notes
+## Networking
 
 | Target | WebSocket URL |
 |---|---|
-| iOS Simulator | `ws://127.0.0.1:8080` |
 | Android Emulator | `ws://10.0.2.2:8080` |
+| iOS Simulator | `ws://127.0.0.1:8080` |
+| Flutter Web | `ws://localhost:8080` |
 | Physical device | `ws://YOUR_COMPUTER_LOCAL_IP:8080` |
 
-Apps auto-select:
+Defaults in code:
 
 - Android emulator → `ws://10.0.2.2:8080`
-- Everything else → `ws://127.0.0.1:8080`
+- Flutter Web → `ws://localhost:8080`
+- iOS simulator / desktop → `ws://127.0.0.1:8080`
 
-Override anytime:
+Override:
 
 ```bash
 flutter run --dart-define=WS_URL=ws://192.168.1.10:8080
 ```
 
-Flutter Web uses `ws://localhost:8080` by default.
+For release APKs, use `scripts/.env` and `./scripts/build_apk.sh`.
 
-## Android APK build (env)
+## Environment configuration
 
-This project is **Flutter**, not Expo. Use `dart-define` for release env values.
-
-1. Copy build env (APK WebSocket URL only):
-
-```bash
-cp scripts/.env.example scripts/.env
-```
-
-2. Edit `scripts/.env` and set your machine LAN IP (physical device) or emulator host:
-
-```env
-HOST_IP=192.168.1.10
-WS_PORT=8080
-WS_URL=ws://192.168.1.10:8080
-```
-
-For Android emulator APKs only:
-
-```env
-WS_URL=ws://10.0.2.2:8080
-```
-
-Backend secrets stay in `websocket_server/.env` only:
+### Backend (`websocket_server/.env`)
 
 ```bash
 cp websocket_server/.env.example websocket_server/.env
 ```
 
-3. Build:
-
-```bash
-# both apps, release
-./scripts/build_apk.sh both release
-
-# PulseChat only
-./scripts/build_apk.sh one release
-
-# NovaChat AI only
-./scripts/build_apk.sh two release
-```
-
-Or manually:
-
-```bash
-cd chat_app_one
-flutter create . --project-name chat_app_one
-flutter build apk --release --dart-define=WS_URL=ws://192.168.1.10:8080
-
-cd ../chat_app_two
-flutter create . --project-name chat_app_two
-flutter build apk --release --dart-define=WS_URL=ws://192.168.1.10:8080
-```
-
-APK output:
-
-- `chat_app_one/build/app/outputs/flutter-apk/app-release.apk`
-- `chat_app_two/build/app/outputs/flutter-apk/app-release.apk`
-
-Install:
-
-```bash
-adb install -r chat_app_one/build/app/outputs/flutter-apk/app-release.apk
-adb install -r chat_app_two/build/app/outputs/flutter-apk/app-release.apk
-```
-
-Start server before testing APKs:
-
-```bash
-cd websocket_server && npm start
-```
-
-Phone and computer must share the same Wi-Fi when using a physical device.
-
-
-## Groq API configuration
-
-Configure only in `websocket_server/.env`:
-
 ```env
 PORT=8080
 GROQ_API_KEY=your_groq_api_key_here
-GROQ_MODEL=llama-3.3-70b-versatile
+GROQ_MODEL=your_supported_groq_model_here
 GROQ_TIMEOUT_MS=20000
 ```
 
-- Never put the API key in Flutter source
-- Never commit `.env`
-- Change `GROQ_MODEL` to any currently supported Groq model
+- `GROQ_API_KEY` — required for AI features; never commit this file
+- `GROQ_MODEL` — any currently supported Groq model id
+- Without a valid key, chat still works; AI requests return `AI_NOT_CONFIGURED`
 
-AI actions:
+### APK build (`scripts/.env`)
 
-- `ask`
-- `smart_reply`
-- `rewrite_professional`
-- `rewrite_friendly`
-- `make_concise`
-- `summarize`
+```bash
+cp scripts/.env.example scripts/.env
+```
+
+```env
+WS_URL=ws://192.168.1.10:8080
+```
+
+Use `10.0.2.2` only when the APK is meant for the Android emulator.
 
 ## Demo steps
 
-1. Start the Node.js server
+1. Start the backend: `cd websocket_server && npm start`
 2. Launch PulseChat
-3. Enter username `Manya`
-4. Join room `general`
-5. Launch NovaChat AI
-6. Enter username `Reviewer`
-7. Join room `general`
-8. Manya sends: `Hello from PulseChat!`
-9. Reviewer receives it instantly
-10. Reviewer starts typing
-11. Manya sees `Reviewer is typing…`
-12. Reviewer sends: `Hello from NovaChat AI!`
-13. Manya receives it instantly
-14. Reviewer uses **Rewrite Professionally**
-15. Reviewer uses **Smart Reply**
-16. Reviewer uses **Summarize Chat**
-17. Reviewer sends: `/ai Explain why WebSocket is useful for chat`
-18. AI response appears with an AI badge
+3. Username: `Manya`, room: `general`
+4. Launch NovaChat AI
+5. Username: `Reviewer`, room: `general`
+6. Manya sends: `Hello from PulseChat!`
+7. Reviewer receives it
+8. Reviewer starts typing — Manya sees the typing indicator
+9. Reviewer sends: `Hello from NovaChat AI!`
+10. Manya receives it
+11. In NovaChat AI, open the sparkle menu:
+    - Smart Replies
+    - Rewrite Professionally
+    - Rewrite Friendly
+    - Make Concise
+    - Summarize Chat
+12. Send: `/ai Explain why WebSocket is useful for chat`
+13. Confirm the AI reply has an AI badge and “Generated by AI”
 
-## Features
+## Testing notes
 
-- Shared realtime rooms over WebSocket
-- Typing indicators
-- Online participant count
-- Connection lifecycle + reconnect with limited exponential backoff
-- Duplicate message prevention via message IDs
-- Provider-based state management
-- Clean architecture in both apps
-- Distinct premium UIs
-- Groq AI tools in NovaChat AI only
-- Input validation and basic rate limiting for AI
+Backend protocol checks that were run in development:
+
+```bash
+cd websocket_server
+npm run audit
+```
+
+That script covers health, bidirectional chat, typing, presence, room isolation, malformed JSON, and AI error handling when no key is set.
+
+Flutter `pub get`, `analyze`, and UI runs need a local Flutter SDK:
+
+```bash
+cd chat_app_one && flutter pub get && flutter analyze
+cd ../chat_app_two && flutter pub get && flutter analyze
+```
+
+Live Groq success paths need a real `GROQ_API_KEY` in `websocket_server/.env`.
 
 ## Known limitations
 
-- In-memory rooms only (no persistence)
+- Rooms and messages are in-memory only (no database)
 - No authentication
-- No message history after reconnect
-- AI requires a valid Groq API key
-- Single-server local demo (no horizontal scaling)
+- Message history is not restored after reconnect
+- AI features need a valid Groq API key
+- Single local server (no multi-instance scaling)
+- Platform folders (`android/`, `ios/`) are generated with `flutter create .` on first run
 
 ## Future improvements
 
-- Persistent message history
+- Persist message history
 - Read receipts
 - Image attachments
 - Push notifications
 - Multi-room sidebar
 - End-to-end encryption
-
-## Testing checklist
-
-- [ ] `GET /health` returns ok
-- [ ] PulseChat joins `general`
-- [ ] NovaChat AI joins `general`
-- [ ] Messages appear instantly both ways
-- [ ] Typing indicators work
-- [ ] Online count updates on join/leave
-- [ ] Reconnect banner appears if server restarts
-- [ ] Smart replies return 3 chips
-- [ ] Rewrite actions update composer text
-- [ ] Summarize shows AI bottom-sheet result
-- [ ] `/ai ...` returns an AI-badged message
-- [ ] Invalid Groq key shows friendly AI error without crashing server
-
-## Demo checklist
-
-- [ ] Server running on port 8080
-- [ ] Both apps open
-- [ ] Different usernames
-- [ ] Same room id
-- [ ] Cross-app chat proven
-- [ ] AI tools demonstrated from NovaChat AI
 
 ## Author
 

@@ -1,11 +1,13 @@
 # PulseChat
 
-Realtime chat app by MS.
+Realtime chat app by MS. Connects to the shared WebSocket server in `../websocket_server`.
 
 ## Run
 
 ```bash
-cd chat_app_one
+cd ../websocket_server && npm start
+
+cd ../chat_app_one
 flutter create . --project-name chat_app_one
 flutter pub get
 flutter run
@@ -20,17 +22,8 @@ flutter run
 | Flutter Web | `ws://localhost:8080` |
 | Physical device | `ws://YOUR_COMPUTER_LOCAL_IP:8080` |
 
-Override:
-
 ```bash
 flutter run --dart-define=WS_URL=ws://192.168.1.10:8080
-```
-
-Start the shared backend first:
-
-```bash
-cd ../websocket_server
-npm start
 ```
 
 ## Author
