@@ -1,0 +1,38 @@
+# Node
+websocket_server/node_modules/
+websocket_server/.env
+npm-debug.log*
+yarn-error.log*
+
+# Flutter / Dart
+**/build/
+**/.dart_tool/
+**/.flutter-plugins
+**/.flutter-plugins-dependencies
+**/.packages
+**/pubspec.lock
+**/.metadata
+**/*.iml
+**/.idea/
+**/android/.gradle/
+**/android/local.properties
+**/android/key.properties
+**/ios/Pods/
+**/ios/.symlinks/
+**/ios/Flutter/Flutter.framework
+**/ios/Flutter/Flutter.podspec
+**/ios/Flutter/Generated.xcconfig
+**/ios/Flutter/ephemeral/
+**/ios/ServiceDefinitions.json
+**/macos/Flutter/ephemeral/
+**/linux/flutter/ephemeral/
+**/windows/flutter/ephemeral/
+**/.vscode/
+
+# OS / misc
+.DS_Store
+*.log
+*.swp
+*.swo
+.env
+*.env.local
