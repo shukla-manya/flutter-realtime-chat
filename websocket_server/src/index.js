@@ -25,18 +25,20 @@ wss.on('connection', (ws) => {
   ws.meta = roomManager.createClientMeta();
   ws.isAlive = true;
 
-  roomManager.send(ws, {
-    type: 'system',
-    content: 'Connected',
-    timestamp: new Date().toISOString(),
-  });
-
   ws.on('pong', () => {
     ws.isAlive = true;
   });
 
   ws.on('message', (data) => {
-    handleMessage(roomManager, ws, data.toString());
+    try {
+      handleMessage(roomManager, ws, data.toString());
+    } catch (_) {
+      roomManager.send(ws, {
+        type: 'error',
+        code: 'SERVER_ERROR',
+        message: 'Unable to process message',
+      });
+    }
   });
 
   ws.on('close', () => {
@@ -49,13 +51,13 @@ wss.on('connection', (ws) => {
 });
 
 const heartbeat = setInterval(() => {
-  for (const ws of wss.clients) {
-    if (!ws.isAlive) {
-      ws.terminate();
+  for (const client of wss.clients) {
+    if (!client.isAlive) {
+      client.terminate();
       continue;
     }
-    ws.isAlive = false;
-    ws.ping();
+    client.isAlive = false;
+    client.ping();
   }
 }, 30000);
 
@@ -66,10 +68,4 @@ wss.on('close', () => {
 server.listen(config.port, () => {
   console.log(`Realtime chat server listening on http://localhost:${config.port}`);
   console.log(`WebSocket endpoint: ws://localhost:${config.port}`);
-  console.log(`Groq model: ${config.groqModel}`);
-  console.log(
-    config.groqApiKey && config.groqApiKey !== 'your_groq_api_key_here'
-      ? 'Groq API key: configured'
-      : 'Groq API key: missing (AI features disabled until set in .env)',
-  );
 });

@@ -6,6 +6,7 @@ import '../core/theme/app_colors.dart';
 import '../models/chat_message.dart';
 import '../models/connection_status.dart';
 import '../providers/chat_provider.dart';
+import '../providers/theme_provider.dart';
 import '../widgets/brand_footer.dart';
 import '../widgets/connection_banner.dart';
 import '../widgets/empty_chat_state.dart';
@@ -65,46 +66,50 @@ class _ChatScreenState extends State<ChatScreen> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (context) {
-        return Padding(
-          padding: const EdgeInsets.fromLTRB(20, 8, 20, 28),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                'Profile & Settings',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.w800,
+        return Consumer<ThemeProvider>(
+          builder: (context, theme, _) {
+            return Padding(
+              padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    'Profile & Settings',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.w800,
+                        ),
+                  ),
+                  const SizedBox(height: 16),
+                  ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    leading: const CircleAvatar(
+                      backgroundColor: AppColors.primary,
+                      child: Icon(Icons.person, color: Colors.white),
                     ),
+                    title: Text(chat.username),
+                    subtitle: Text('Room: #${chat.roomId}'),
+                  ),
+                  SwitchListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: const Text('Dark theme'),
+                    value: theme.isDarkMode,
+                    activeThumbColor: AppColors.primary,
+                    onChanged: (_) => theme.toggleTheme(),
+                  ),
+                  const SizedBox(height: 8),
+                  FilledButton.tonal(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      _leave();
+                    },
+                    child: const Text('Leave room'),
+                  ),
+                  const BrandFooter(),
+                ],
               ),
-              const SizedBox(height: 16),
-              ListTile(
-                contentPadding: EdgeInsets.zero,
-                leading: const CircleAvatar(
-                  backgroundColor: AppColors.primary,
-                  child: Icon(Icons.person, color: Colors.white),
-                ),
-                title: Text(chat.username),
-                subtitle: Text('Room: #${chat.roomId}'),
-              ),
-              SwitchListTile(
-                contentPadding: EdgeInsets.zero,
-                title: const Text('Dark theme'),
-                value: chat.isDarkMode,
-                activeThumbColor: AppColors.primary,
-                onChanged: (_) => chat.toggleTheme(),
-              ),
-              const SizedBox(height: 8),
-              FilledButton.tonal(
-                onPressed: () {
-                  Navigator.pop(context);
-                  _leave();
-                },
-                child: const Text('Leave room'),
-              ),
-              const BrandFooter(),
-            ],
-          ),
+            );
+          },
         );
       },
     );

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'core/constants/app_constants.dart';
 import 'core/theme/app_theme.dart';
 import 'providers/chat_provider.dart';
+import 'providers/theme_provider.dart';
 import 'screens/splash_screen.dart';
 
 class PulseChatApp extends StatelessWidget {
@@ -10,16 +12,19 @@ class PulseChatApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => ChatProvider(),
-      child: Consumer<ChatProvider>(
-        builder: (context, chat, _) {
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
+        ChangeNotifierProvider(create: (_) => ChatProvider()),
+      ],
+      child: Consumer<ThemeProvider>(
+        builder: (context, theme, _) {
           return MaterialApp(
-            title: 'PulseChat | MS',
+            title: '${AppConstants.appName} | ${AppConstants.brandInitials}',
             debugShowCheckedModeBanner: false,
             theme: AppTheme.light(),
             darkTheme: AppTheme.dark(),
-            themeMode: chat.isDarkMode ? ThemeMode.dark : ThemeMode.light,
+            themeMode: theme.themeMode,
             home: const SplashScreen(),
           );
         },

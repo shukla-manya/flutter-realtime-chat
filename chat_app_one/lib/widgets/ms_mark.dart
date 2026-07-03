@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../core/constants/app_constants.dart';
 import '../core/theme/app_colors.dart';
 
 class MsMark extends StatelessWidget {
@@ -30,17 +31,43 @@ class MsMark extends StatelessWidget {
               ]
             : null,
       ),
-      alignment: Alignment.center,
-      child: Text(
-        'MS',
+      child: CustomPaint(
+        painter: _MsMonogramPainter(fontSize: size * 0.38),
+      ),
+    );
+  }
+}
+
+class _MsMonogramPainter extends CustomPainter {
+  _MsMonogramPainter({required this.fontSize});
+
+  final double fontSize;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final textPainter = TextPainter(
+      text: TextSpan(
+        text: AppConstants.brandInitials,
         style: TextStyle(
           color: Colors.white,
-          fontSize: size * 0.38,
+          fontSize: fontSize,
           fontWeight: FontWeight.w800,
-          letterSpacing: size * 0.02,
+          letterSpacing: fontSize * 0.04,
           height: 1,
         ),
       ),
+      textDirection: TextDirection.ltr,
+    )..layout();
+
+    final offset = Offset(
+      (size.width - textPainter.width) / 2,
+      (size.height - textPainter.height) / 2,
     );
+    textPainter.paint(canvas, offset);
+  }
+
+  @override
+  bool shouldRepaint(covariant _MsMonogramPainter oldDelegate) {
+    return oldDelegate.fontSize != fontSize;
   }
 }

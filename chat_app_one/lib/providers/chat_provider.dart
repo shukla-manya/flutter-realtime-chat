@@ -36,7 +36,6 @@ class ChatProvider extends ChangeNotifier {
   String username = '';
   String roomId = AppConstants.defaultRoomId;
   int onlineCount = 0;
-  bool isDarkMode = false;
   bool isJoining = false;
   bool isSending = false;
   String? errorMessage;
@@ -45,7 +44,6 @@ class ChatProvider extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     username = prefs.getString('username') ?? '';
     roomId = prefs.getString('roomId') ?? AppConstants.defaultRoomId;
-    isDarkMode = prefs.getBool('isDarkMode') ?? false;
     notifyListeners();
   }
 
@@ -53,10 +51,9 @@ class ChatProvider extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('username', username);
     await prefs.setString('roomId', roomId);
-    await prefs.setBool('isDarkMode', isDarkMode);
   }
 
-  Future<void> join({
+  Future<bool> join({
     required String username,
     required String roomId,
   }) async {
@@ -75,21 +72,28 @@ class ChatProvider extends ChangeNotifier {
 
     try {
       await _service.connect(username: this.username, roomId: this.roomId);
-    } catch (_) {
-      errorMessage = 'Could not connect';
-    } finally {
       isJoining = false;
       notifyListeners();
+      return connectionStatus == ConnectionStatus.connected ||
+          connectionStatus == ConnectionStatus.connecting ||
+          connectionStatus == ConnectionStatus.reconnecting;
+    } catch (_) {
+      errorMessage = 'Could not connect';
+      isJoining = false;
+      notifyListeners();
+      return false;
     }
   }
 
   Future<void> leaveRoom() async {
     _typingStopTimer?.cancel();
-    _service.sendTyping(
-      roomId: roomId,
-      username: username,
-      isTyping: false,
-    );
+    if (username.isNotEmpty && roomId.isNotEmpty) {
+      _service.sendTyping(
+        roomId: roomId,
+        username: username,
+        isTyping: false,
+      );
+    }
     await _service.disconnect();
     messages.clear();
     typingUsers.clear();
@@ -149,18 +153,12 @@ class ChatProvider extends ChangeNotifier {
 
   void stopTyping() {
     _typingStopTimer?.cancel();
-    if (username.isEmpty) return;
+    if (username.isEmpty || roomId.isEmpty) return;
     _service.sendTyping(
       roomId: roomId,
       username: username,
       isTyping: false,
     );
-  }
-
-  void toggleTheme() {
-    isDarkMode = !isDarkMode;
-    _savePrefs();
-    notifyListeners();
   }
 
   void clearError() {

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../core/constants/app_constants.dart';
 import '../core/theme/app_colors.dart';
+import '../core/theme/app_spacing.dart';
 import '../widgets/brand_footer.dart';
 import '../widgets/ms_mark.dart';
 import 'join_screen.dart';
@@ -16,18 +17,18 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
-  late final Animation<double> _scale;
   late final Animation<double> _fade;
+  late final Animation<double> _scale;
 
   @override
   void initState() {
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1100),
+      duration: const Duration(milliseconds: 900),
     );
-    _scale = CurvedAnimation(parent: _controller, curve: Curves.easeOutBack);
     _fade = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
+    _scale = CurvedAnimation(parent: _controller, curve: Curves.easeOutBack);
     _controller.forward();
 
     Future<void>.delayed(AppConstants.splashDuration, () {
@@ -66,30 +67,8 @@ class _SplashScreenState extends State<SplashScreen>
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            Container(
-                              width: 120,
-                              height: 120,
-                              decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.12),
-                                borderRadius: BorderRadius.circular(36),
-                              ),
-                            ),
-                            const MsMark(size: 96, showGlow: true),
-                            Positioned(
-                              right: 8,
-                              top: 10,
-                              child: Icon(
-                                Icons.chat_bubble_rounded,
-                                size: 22,
-                                color: Colors.white.withValues(alpha: 0.9),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 24),
+                        const MsMark(size: 96, showGlow: true),
+                        const SizedBox(height: AppSpacing.lg),
                         Text(
                           AppConstants.appName,
                           style: Theme.of(context)
@@ -98,24 +77,24 @@ class _SplashScreenState extends State<SplashScreen>
                               ?.copyWith(
                                 color: Colors.white,
                                 fontWeight: FontWeight.w800,
-                                letterSpacing: -0.5,
+                                letterSpacing: -0.4,
                               ),
                         ),
-                        const SizedBox(height: 6),
+                        const SizedBox(height: AppSpacing.xs),
                         Text(
-                          'by MS',
+                          'by ${AppConstants.brandInitials}',
                           style: TextStyle(
-                            color: Colors.white.withValues(alpha: 0.85),
+                            color: Colors.white.withValues(alpha: 0.88),
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
                             letterSpacing: 1.2,
                           ),
                         ),
-                        const SizedBox(height: 12),
+                        const SizedBox(height: AppSpacing.md),
                         Text(
                           AppConstants.appSubtitle,
                           style: TextStyle(
-                            color: Colors.white.withValues(alpha: 0.9),
+                            color: Colors.white.withValues(alpha: 0.92),
                             fontSize: 15,
                             fontWeight: FontWeight.w500,
                           ),

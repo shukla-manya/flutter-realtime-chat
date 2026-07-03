@@ -1,13 +1,10 @@
-const { v4: uuidv4 } = require('uuid');
+const { randomUUID } = require('crypto');
 const {
   sanitizeText,
   validateJoin,
   validateMessage,
   validateTyping,
-  validateAiRequest,
 } = require('./validators');
-const { aiRateLimiter } = require('./rateLimiter');
-const { handleAiAction } = require('./groqService');
 
 function nowIso() {
   return new Date().toISOString();
@@ -33,6 +30,7 @@ function handleJoin(roomManager, ws, payload) {
   const username = sanitizeText(payload.username || '');
   const roomId = sanitizeText(payload.roomId || '');
   const error = validateJoin({ username, roomId });
+
   if (error) {
     sendError(roomManager, ws, 'INVALID_JOIN', error);
     return;
@@ -72,19 +70,21 @@ function handleLeave(roomManager, ws) {
 }
 
 function handleChatMessage(roomManager, ws, payload) {
-  if (!ws.meta.roomId) {
+  if (!ws.meta?.roomId) {
     sendError(roomManager, ws, 'NOT_JOINED', 'Join a room before sending messages');
     return;
   }
 
   const message = {
     type: 'message',
-    id: sanitizeText(payload.id || uuidv4()),
+    id: sanitizeText(payload.id || randomUUID()),
     roomId: sanitizeText(payload.roomId || ws.meta.roomId),
     sender: sanitizeText(payload.sender || ws.meta.username || 'Anonymous'),
     content: sanitizeText(payload.content || ''),
-    timestamp: payload.timestamp || nowIso(),
-    isAi: false,
+    timestamp:
+      typeof payload.timestamp === 'string' && payload.timestamp.trim()
+        ? payload.timestamp
+        : nowIso(),
   };
 
   const error = validateMessage(message);
@@ -94,28 +94,17 @@ function handleChatMessage(roomManager, ws, payload) {
   }
 
   if (message.roomId !== ws.meta.roomId) {
-    sendError(roomManager, ws, 'ROOM_MISMATCH', 'Message room does not match joined room');
+    sendError(
+      roomManager,
+      ws,
+      'ROOM_MISMATCH',
+      'Message room does not match joined room',
+    );
     return;
   }
 
-  if (message.content.startsWith('/ai ')) {
-    const question = sanitizeText(message.content.slice(4));
-    roomManager.broadcast(message.roomId, message);
-
-    if (!question) {
-      sendError(roomManager, ws, 'INVALID_AI_REQUEST', 'Usage: /ai <question>');
-      return;
-    }
-
-    processAiRequest(roomManager, ws, {
-      type: 'ai_request',
-      action: 'ask',
-      roomId: message.roomId,
-      username: message.sender,
-      content: question,
-      requestId: uuidv4(),
-      broadcastAnswer: true,
-    });
+  if (message.sender !== ws.meta.username) {
+    sendError(roomManager, ws, 'SENDER_MISMATCH', 'Sender does not match joined username');
     return;
   }
 
@@ -123,7 +112,7 @@ function handleChatMessage(roomManager, ws, payload) {
 }
 
 function handleTyping(roomManager, ws, payload) {
-  if (!ws.meta.roomId) return;
+  if (!ws.meta?.roomId) return;
 
   const typing = {
     type: 'typing',
@@ -138,89 +127,15 @@ function handleTyping(roomManager, ws, payload) {
     return;
   }
 
+  if (typing.roomId !== ws.meta.roomId) return;
+  if (typing.username !== ws.meta.username) return;
+
   roomManager.broadcast(typing.roomId, typing, { exclude: ws });
-}
-
-async function processAiRequest(roomManager, ws, payload) {
-  const action = payload.action;
-  const requestId = sanitizeText(payload.requestId || uuidv4());
-  const roomId = sanitizeText(payload.roomId || ws.meta.roomId || '');
-  const username = sanitizeText(payload.username || ws.meta.username || '');
-  const content = sanitizeText(payload.content || '');
-  const messages = Array.isArray(payload.messages)
-    ? payload.messages.slice(-40).map((m) => ({
-        sender: sanitizeText(m.sender || ''),
-        content: sanitizeText(m.content || ''),
-      }))
-    : [];
-
-  const validationError = validateAiRequest({
-    action,
-    requestId,
-    roomId,
-    username,
-    content,
-    messages,
-  });
-
-  if (validationError) {
-    sendError(roomManager, ws, 'INVALID_AI_REQUEST', validationError);
-    return;
-  }
-
-  if (!ws.meta.roomId || ws.meta.roomId !== roomId) {
-    sendError(roomManager, ws, 'NOT_JOINED', 'Join a room before using AI features');
-    return;
-  }
-
-  if (!aiRateLimiter.allow(ws.meta.clientId)) {
-    sendError(roomManager, ws, 'AI_RATE_LIMIT', 'Too many AI requests. Please wait a moment.');
-    return;
-  }
-
-  try {
-    const result = await handleAiAction({ action, content, messages });
-
-    if (action === 'ask' && payload.broadcastAnswer) {
-      const aiMessage = {
-        type: 'message',
-        id: uuidv4(),
-        roomId,
-        sender: 'Nova AI',
-        content: result.content,
-        timestamp: nowIso(),
-        isAi: true,
-      };
-      roomManager.broadcast(roomId, aiMessage);
-    }
-
-    const response = {
-      type: 'ai_response',
-      action,
-      requestId,
-      timestamp: nowIso(),
-      isAi: true,
-    };
-
-    if (action === 'smart_reply') {
-      response.suggestions = result.suggestions;
-    } else {
-      response.content = result.content;
-    }
-
-    roomManager.send(ws, response);
-  } catch (err) {
-    sendError(
-      roomManager,
-      ws,
-      err.code || 'AI_ERROR',
-      err.message || 'AI request failed',
-    );
-  }
 }
 
 function handleMessage(roomManager, ws, raw) {
   let payload;
+
   try {
     payload = JSON.parse(raw);
   } catch (_) {
@@ -228,39 +143,46 @@ function handleMessage(roomManager, ws, raw) {
     return;
   }
 
-  if (!payload || typeof payload !== 'object' || typeof payload.type !== 'string') {
+  if (!payload || typeof payload !== 'object' || Array.isArray(payload)) {
+    sendError(roomManager, ws, 'INVALID_MESSAGE', 'Message must be a JSON object');
+    return;
+  }
+
+  if (typeof payload.type !== 'string') {
     sendError(roomManager, ws, 'INVALID_MESSAGE', 'Message type is required');
     return;
   }
 
-  switch (payload.type) {
-    case 'join':
-      handleJoin(roomManager, ws, payload);
-      break;
-    case 'leave':
-      handleLeave(roomManager, ws);
-      break;
-    case 'message':
-      handleChatMessage(roomManager, ws, payload);
-      break;
-    case 'typing':
-      handleTyping(roomManager, ws, payload);
-      break;
-    case 'ai_request':
-      processAiRequest(roomManager, ws, payload);
-      break;
-    case 'ping':
-      roomManager.send(ws, { type: 'pong', timestamp: nowIso() });
-      break;
-    default:
-      sendError(roomManager, ws, 'UNKNOWN_TYPE', `Unknown message type: ${payload.type}`);
+  try {
+    switch (payload.type) {
+      case 'join':
+        handleJoin(roomManager, ws, payload);
+        break;
+      case 'leave':
+        handleLeave(roomManager, ws);
+        break;
+      case 'message':
+        handleChatMessage(roomManager, ws, payload);
+        break;
+      case 'typing':
+        handleTyping(roomManager, ws, payload);
+        break;
+      default:
+        sendError(
+          roomManager,
+          ws,
+          'UNKNOWN_TYPE',
+          `Unknown message type: ${payload.type}`,
+        );
+    }
+  } catch (_) {
+    sendError(roomManager, ws, 'SERVER_ERROR', 'Unable to process message');
   }
 }
 
 function handleDisconnect(roomManager, ws) {
-  aiRateLimiter.clear(ws.meta?.clientId);
   const result = roomManager.leave(ws);
-  if (!result.roomId) return;
+  if (!result.roomId || !result.username) return;
 
   roomManager.broadcast(result.roomId, {
     type: 'system',

@@ -1,4 +1,4 @@
-const { v4: uuidv4 } = require('uuid');
+const { randomUUID } = require('crypto');
 
 class RoomManager {
   constructor() {
@@ -7,7 +7,7 @@ class RoomManager {
 
   createClientMeta() {
     return {
-      clientId: uuidv4(),
+      clientId: randomUUID(),
       username: null,
       roomId: null,
       joinedAt: null,
@@ -31,10 +31,13 @@ class RoomManager {
 
   leave(ws, { silent = false } = {}) {
     const { roomId, username } = ws.meta || {};
+
     if (!roomId || !this.rooms.has(roomId)) {
-      ws.meta.username = null;
-      ws.meta.roomId = null;
-      ws.meta.joinedAt = null;
+      if (ws.meta) {
+        ws.meta.username = null;
+        ws.meta.roomId = null;
+        ws.meta.joinedAt = null;
+      }
       return { roomId: null, username: null, onlineCount: 0, silent };
     }
 

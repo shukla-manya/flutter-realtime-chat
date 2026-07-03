@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../core/constants/app_constants.dart';
 import '../core/theme/app_colors.dart';
+import '../core/theme/app_spacing.dart';
 import 'ms_mark.dart';
 
 class BrandFooter extends StatelessWidget {
@@ -15,7 +17,7 @@ class BrandFooter extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final color = light
-        ? Colors.white.withValues(alpha: 0.8)
+        ? Colors.white.withValues(alpha: 0.82)
         : isDark
             ? Colors.white.withValues(alpha: 0.45)
             : AppColors.textMuted.withValues(alpha: 0.9);
@@ -23,14 +25,19 @@ class BrandFooter extends StatelessWidget {
     return SafeArea(
       top: false,
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+        padding: const EdgeInsets.fromLTRB(
+          AppSpacing.md,
+          AppSpacing.sm,
+          AppSpacing.md,
+          AppSpacing.md,
+        ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             MsMark(size: 16, showGlow: light),
-            const SizedBox(width: 8),
+            const SizedBox(width: AppSpacing.sm),
             Text(
-              'by MANYA SHUKLA 2026',
+              AppConstants.footerText,
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
