@@ -19,15 +19,15 @@ class EmptyChatState extends StatelessWidget {
               width: 72,
               height: 72,
               decoration: BoxDecoration(
-                color: AppColors.electricPurple.withValues(alpha: 0.16),
+                color: AppColors.purple.withValues(alpha: 0.16),
                 borderRadius: BorderRadius.circular(22),
                 border: Border.all(
-                  color: AppColors.electricPurple.withValues(alpha: 0.3),
+                  color: AppColors.purple.withValues(alpha: 0.3),
                 ),
               ),
               child: const Icon(
                 Icons.forum_outlined,
-                color: AppColors.neonCyan,
+                color: AppColors.cyan,
                 size: 32,
               ),
             ),

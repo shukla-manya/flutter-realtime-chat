@@ -188,10 +188,8 @@ class WebSocketService {
       'roomId': roomId,
       'username': username,
     };
-
     if (content != null) payload['content'] = content;
     if (messages != null) payload['messages'] = messages;
-
     sendJson(payload);
   }
 

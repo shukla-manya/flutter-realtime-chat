@@ -5,6 +5,7 @@ const { WebSocketServer } = require('ws');
 const { config } = require('./config');
 const { RoomManager } = require('./roomManager');
 const { handleMessage, handleDisconnect } = require('./messageHandler');
+const { isKeyConfigured } = require('./groqService');
 
 const app = express();
 app.use(cors());
@@ -68,4 +69,10 @@ wss.on('close', () => {
 server.listen(config.port, () => {
   console.log(`Realtime chat server listening on http://localhost:${config.port}`);
   console.log(`WebSocket endpoint: ws://localhost:${config.port}`);
+  console.log(`Groq model: ${config.groqModel}`);
+  console.log(
+    isKeyConfigured()
+      ? 'Groq API key: configured'
+      : 'Groq API key: missing (AI features return AI_NOT_CONFIGURED)',
+  );
 });

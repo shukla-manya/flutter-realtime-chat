@@ -3,7 +3,6 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../core/theme/app_colors.dart';
-import '../models/connection_status.dart';
 import '../providers/chat_provider.dart';
 import '../widgets/ai_action_sheet.dart';
 import '../widgets/brand_footer.dart';
@@ -82,7 +81,7 @@ class _ChatScreenState extends State<ChatScreen> {
               ListTile(
                 contentPadding: EdgeInsets.zero,
                 leading: const CircleAvatar(
-                  backgroundColor: AppColors.electricPurple,
+                  backgroundColor: AppColors.purple,
                   child: Icon(Icons.person, color: Colors.white),
                 ),
                 title: Text(chat.username),
@@ -105,12 +104,19 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Future<void> _openAiSheet(ChatProvider chat) async {
+    final draft = _composerController.text;
     final result = await showAiActionSheet(
       context: context,
       chat: chat,
-      draftText: _composerController.text,
+      draftText: draft,
     );
-    if (!mounted || result == null || result.isEmpty) return;
+    if (!mounted) return;
+    if (result == null || result.isEmpty) {
+      if (_composerController.text != draft) {
+        _composerController.text = draft;
+      }
+      return;
+    }
     setState(() {
       _composerController.text = result;
       _composerController.selection = TextSelection.fromPosition(

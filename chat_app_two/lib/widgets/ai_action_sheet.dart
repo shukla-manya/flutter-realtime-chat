@@ -175,7 +175,7 @@ class _AiActionSheetBodyState extends State<_AiActionSheetBody> {
                           children: [
                             Icon(
                               _iconFor(action),
-                              color: AppColors.neonCyan,
+                              color: AppColors.cyan,
                               size: 20,
                             ),
                             const SizedBox(width: 12),
@@ -193,7 +193,7 @@ class _AiActionSheetBodyState extends State<_AiActionSheetBody> {
                                 height: 18,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2,
-                                  color: AppColors.electricPurple,
+                                  color: AppColors.purple,
                                 ),
                               )
                             else
@@ -213,7 +213,7 @@ class _AiActionSheetBodyState extends State<_AiActionSheetBody> {
                   padding: EdgeInsets.symmetric(vertical: 12),
                   child: LinearProgressIndicator(
                     minHeight: 3,
-                    color: AppColors.electricPurple,
+                    color: AppColors.purple,
                     backgroundColor: AppColors.surface,
                   ),
                 ),
@@ -266,7 +266,7 @@ class _AiActionSheetBodyState extends State<_AiActionSheetBody> {
                     color: AppColors.surface,
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
-                      color: AppColors.electricPurple.withValues(alpha: 0.35),
+                      color: AppColors.purple.withValues(alpha: 0.35),
                     ),
                   ),
                   child: Column(
@@ -274,11 +274,11 @@ class _AiActionSheetBodyState extends State<_AiActionSheetBody> {
                     children: [
                       Text(
                         _completedAction == AiAction.summarize
-                            ? 'Summarize this chat'
-                            : 'Result',
+                            ? 'Summary'
+                            : 'Preview',
                         style: const TextStyle(
                           fontWeight: FontWeight.w700,
-                          color: AppColors.electricPurple,
+                          color: AppColors.purple,
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -294,7 +294,7 @@ class _AiActionSheetBodyState extends State<_AiActionSheetBody> {
                             );
                           },
                           style: FilledButton.styleFrom(
-                            backgroundColor: AppColors.electricPurple,
+                            backgroundColor: AppColors.purple,
                           ),
                           child: Text(_isRewrite ? 'Use text' : 'Done'),
                         ),

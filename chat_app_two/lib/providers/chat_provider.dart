@@ -64,7 +64,7 @@ class ChatProvider extends ChangeNotifier {
     await prefs.setString('roomId', roomId);
   }
 
-  Future<void> join({
+  Future<bool> join({
     required String username,
     required String roomId,
   }) async {
@@ -84,22 +84,29 @@ class ChatProvider extends ChangeNotifier {
 
     try {
       await _service.connect(username: this.username, roomId: this.roomId);
-    } catch (_) {
-      errorMessage = 'Could not connect';
-    } finally {
       isJoining = false;
       notifyListeners();
+      return connectionStatus == ConnectionStatus.connected ||
+          connectionStatus == ConnectionStatus.connecting ||
+          connectionStatus == ConnectionStatus.reconnecting;
+    } catch (_) {
+      errorMessage = 'Could not connect';
+      isJoining = false;
+      notifyListeners();
+      return false;
     }
   }
 
   Future<void> leaveRoom() async {
     _typingStopTimer?.cancel();
-    _aiTimeoutTimer?.cancel();
-    _service.sendTyping(
-      roomId: roomId,
-      username: username,
-      isTyping: false,
-    );
+    _cancelPendingAi();
+    if (username.isNotEmpty && roomId.isNotEmpty) {
+      _service.sendTyping(
+        roomId: roomId,
+        username: username,
+        isTyping: false,
+      );
+    }
     await _service.disconnect();
     messages.clear();
     typingUsers.clear();
@@ -160,7 +167,7 @@ class ChatProvider extends ChangeNotifier {
 
   void stopTyping() {
     _typingStopTimer?.cancel();
-    if (username.isEmpty) return;
+    if (username.isEmpty || roomId.isEmpty) return;
     _service.sendTyping(
       roomId: roomId,
       username: username,
@@ -178,7 +185,14 @@ class ChatProvider extends ChangeNotifier {
       return null;
     }
 
-    if (action == AiAction.summarize && messages.where((m) => !m.isSystem).isEmpty) {
+    if (isAiLoading) {
+      aiError = 'AI request already in progress';
+      notifyListeners();
+      return null;
+    }
+
+    if (action == AiAction.summarize &&
+        messages.where((m) => !m.isSystem).isEmpty) {
       aiError = 'No messages to summarize';
       notifyListeners();
       return null;
@@ -244,7 +258,8 @@ class ChatProvider extends ChangeNotifier {
 
     _aiTimeoutTimer?.cancel();
     _aiTimeoutTimer = Timer(AppConstants.aiTimeout, () {
-      if (_aiCompleter != null && !(_aiCompleter!.isCompleted)) {
+      if (_pendingAiRequestId != requestId) return;
+      if (_aiCompleter != null && !_aiCompleter!.isCompleted) {
         aiError = 'AI timed out';
         isAiLoading = false;
         activeAiAction = null;
@@ -254,17 +269,18 @@ class ChatProvider extends ChangeNotifier {
     });
 
     try {
-      final response = await _aiCompleter!.future;
-      return response;
+      return await _aiCompleter!.future;
     } catch (_) {
       return null;
     } finally {
-      _aiTimeoutTimer?.cancel();
-      isAiLoading = false;
-      activeAiAction = null;
-      _pendingAiRequestId = null;
-      _aiCompleter = null;
-      notifyListeners();
+      if (_pendingAiRequestId == requestId) {
+        _aiTimeoutTimer?.cancel();
+        isAiLoading = false;
+        activeAiAction = null;
+        _pendingAiRequestId = null;
+        _aiCompleter = null;
+        notifyListeners();
+      }
     }
   }
 
@@ -278,6 +294,15 @@ class ChatProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void _cancelPendingAi() {
+    _aiTimeoutTimer?.cancel();
+    if (_aiCompleter != null && !_aiCompleter!.isCompleted) {
+      _aiCompleter!.completeError(StateError('cancelled'));
+    }
+    _aiCompleter = null;
+    _pendingAiRequestId = null;
+  }
+
   void _resetAiState() {
     isAiLoading = false;
     activeAiAction = null;
@@ -285,12 +310,7 @@ class ChatProvider extends ChangeNotifier {
     summaryResult = null;
     rewriteResult = null;
     aiError = null;
-    _aiTimeoutTimer?.cancel();
-    if (_aiCompleter != null && !_aiCompleter!.isCompleted) {
-      _aiCompleter!.completeError(StateError('cancelled'));
-    }
-    _aiCompleter = null;
-    _pendingAiRequestId = null;
+    _cancelPendingAi();
   }
 
   void _onEvent(Map<String, dynamic> event) {
@@ -336,7 +356,7 @@ class ChatProvider extends ChangeNotifier {
   }
 
   void _handleAiResponse(AiResponse response) {
-    if (_pendingAiRequestId != null &&
+    if (_pendingAiRequestId == null ||
         response.requestId != _pendingAiRequestId) {
       return;
     }

@@ -2,6 +2,15 @@ const { config } = require('./config');
 
 const ROOM_ID_PATTERN = /^[a-zA-Z0-9_-]+$/;
 
+const AI_ACTIONS = new Set([
+  'ask',
+  'smart_reply',
+  'rewrite_professional',
+  'rewrite_friendly',
+  'make_concise',
+  'summarize',
+]);
+
 function isNonEmptyString(value, maxLength) {
   return (
     typeof value === 'string' &&
@@ -64,9 +73,44 @@ function validateTyping(payload) {
   return null;
 }
 
+function validateAiRequest(payload) {
+  if (!AI_ACTIONS.has(payload.action)) {
+    return 'Unsupported AI action';
+  }
+  if (!isNonEmptyString(payload.requestId, config.limits.messageIdMax)) {
+    return 'requestId is required';
+  }
+  if (!isNonEmptyString(payload.roomId, config.limits.roomIdMax)) {
+    return 'Room ID is required';
+  }
+  if (!ROOM_ID_PATTERN.test(payload.roomId)) {
+    return 'Room ID may only contain letters, numbers, _ or -';
+  }
+  if (!isNonEmptyString(payload.username, config.limits.usernameMax)) {
+    return 'Username is required';
+  }
+
+  if (payload.action === 'summarize') {
+    if (!Array.isArray(payload.messages)) {
+      return 'messages array is required for summarize';
+    }
+    if (payload.messages.length === 0) {
+      return 'At least one message is required to summarize';
+    }
+    return null;
+  }
+
+  if (!isNonEmptyString(payload.content, config.limits.aiContentMax)) {
+    return 'AI content is required and must be 1–2000 characters';
+  }
+  return null;
+}
+
 module.exports = {
   sanitizeText,
   validateJoin,
   validateMessage,
   validateTyping,
+  validateAiRequest,
+  AI_ACTIONS,
 };

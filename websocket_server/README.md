@@ -11,13 +11,23 @@ npm install
 npm start
 ```
 
-- HTTP: `http://localhost:8080`
-- WebSocket: `ws://localhost:8080`
-- Health: `GET /health`
+Configure Groq in `.env` only:
+
+```env
+PORT=8080
+GROQ_API_KEY=your_groq_api_key_here
+GROQ_MODEL=your_supported_groq_model_here
+```
+
+Never put `GROQ_API_KEY` in Flutter apps.
 
 ## Protocol
 
-`join`, `message`, `typing`, `presence`, `system`, `error`, `leave`
+Chat: `join`, `message`, `typing`, `presence`, `system`, `error`, `leave`
+
+AI: `ai_request` → private `ai_response` (or room `message` with `isAi: true` for `/ai` commands)
+
+`/ai <question>` broadcasts the user message, then one room AI message (`isAi: true`). No private `ai_response` for that path, so clients do not render the answer twice.
 
 ## Author
 

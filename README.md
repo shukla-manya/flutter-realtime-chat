@@ -187,6 +187,84 @@ Override anytime:
 flutter run --dart-define=WS_URL=ws://192.168.1.10:8080
 ```
 
+Flutter Web uses `ws://localhost:8080` by default.
+
+## Android APK build (env)
+
+This project is **Flutter**, not Expo. Use `dart-define` for release env values.
+
+1. Copy build env (APK WebSocket URL only):
+
+```bash
+cp scripts/.env.example scripts/.env
+```
+
+2. Edit `scripts/.env` and set your machine LAN IP (physical device) or emulator host:
+
+```env
+HOST_IP=192.168.1.10
+WS_PORT=8080
+WS_URL=ws://192.168.1.10:8080
+```
+
+For Android emulator APKs only:
+
+```env
+WS_URL=ws://10.0.2.2:8080
+```
+
+Backend secrets stay in `websocket_server/.env` only:
+
+```bash
+cp websocket_server/.env.example websocket_server/.env
+```
+
+3. Build:
+
+```bash
+# both apps, release
+./scripts/build_apk.sh both release
+
+# PulseChat only
+./scripts/build_apk.sh one release
+
+# NovaChat AI only
+./scripts/build_apk.sh two release
+```
+
+Or manually:
+
+```bash
+cd chat_app_one
+flutter create . --project-name chat_app_one
+flutter build apk --release --dart-define=WS_URL=ws://192.168.1.10:8080
+
+cd ../chat_app_two
+flutter create . --project-name chat_app_two
+flutter build apk --release --dart-define=WS_URL=ws://192.168.1.10:8080
+```
+
+APK output:
+
+- `chat_app_one/build/app/outputs/flutter-apk/app-release.apk`
+- `chat_app_two/build/app/outputs/flutter-apk/app-release.apk`
+
+Install:
+
+```bash
+adb install -r chat_app_one/build/app/outputs/flutter-apk/app-release.apk
+adb install -r chat_app_two/build/app/outputs/flutter-apk/app-release.apk
+```
+
+Start server before testing APKs:
+
+```bash
+cd websocket_server && npm start
+```
+
+Phone and computer must share the same Wi-Fi when using a physical device.
+
+
 ## Groq API configuration
 
 Configure only in `websocket_server/.env`:

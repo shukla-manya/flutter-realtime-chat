@@ -1,38 +1,133 @@
-# Node
-websocket_server/node_modules/
-websocket_server/.env
-npm-debug.log*
-yarn-error.log*
+# =========================
+# Secrets / local env
+# =========================
+.env
+.env.*
+!.env.example
+!**/.env.example
+*.pem
+*.p12
+*.keystore
+**/key.properties
+**/secrets.json
+**/credentials.json
+**/google-services.json
+**/GoogleService-Info.plist
 
+# =========================
+# Node (websocket_server)
+# =========================
+**/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+package-lock.json.bak
+.npm/
+.node_repl_history
+
+# =========================
 # Flutter / Dart
+# =========================
 **/build/
 **/.dart_tool/
 **/.flutter-plugins
 **/.flutter-plugins-dependencies
 **/.packages
+**/.pub-cache/
+**/.pub/
 **/pubspec.lock
 **/.metadata
-**/*.iml
-**/.idea/
+**/*.g.dart
+**/*.freezed.dart
+**/*.mocks.dart
+coverage/
+**/coverage/
+
+# =========================
+# Android
+# =========================
 **/android/.gradle/
+**/android/captures/
 **/android/local.properties
 **/android/key.properties
+**/android/**/GeneratedPluginRegistrant.java
+**/android/**/GeneratedPluginRegistrant.kt
+**/android/app/debug/
+**/android/app/profile/
+**/android/app/release/
+**/android/app/*.keystore
+**/android/app/*.jks
+**/*.apk
+**/*.aab
+**/*.ap_
+**/*.dex
+
+# =========================
+# iOS / macOS
+# =========================
 **/ios/Pods/
 **/ios/.symlinks/
 **/ios/Flutter/Flutter.framework
 **/ios/Flutter/Flutter.podspec
 **/ios/Flutter/Generated.xcconfig
+**/ios/Flutter/flutter_export_environment.sh
 **/ios/Flutter/ephemeral/
+**/ios/Flutter/app.flx
+**/ios/Flutter/app.zip
+**/ios/Flutter/flutter_assets/
 **/ios/ServiceDefinitions.json
+**/ios/Runner/GeneratedPluginRegistrant.*
 **/macos/Flutter/ephemeral/
+**/macos/Flutter/GeneratedPluginRegistrant.swift
+**/macos/Pods/
+
+# =========================
+# Linux / Windows / Web
+# =========================
 **/linux/flutter/ephemeral/
 **/windows/flutter/ephemeral/
-**/.vscode/
+**/web/.dart_tool/
 
-# OS / misc
-.DS_Store
-*.log
+# =========================
+# IDE / editors
+# =========================
+**/*.iml
+**/.idea/
+**/.vscode/
+**/.history/
 *.swp
 *.swo
-.env
-*.env.local
+*~
+*.sublime-project
+*.sublime-workspace
+
+# =========================
+# OS
+# =========================
+.DS_Store
+.AppleDouble
+.LSOverride
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# =========================
+# Logs / temp / tools
+# =========================
+*.log
+*.tmp
+*.temp
+*.bak
+*.cache
+.tools/
+flutter.zip
+**/doc/api/
+**/flutter_*.png
+**/Flutter.podspec
+
+# =========================
+# Test / coverage
+# =========================
+**/test/.test_coverage.dart
+**/coverage_badge.svg

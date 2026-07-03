@@ -4,7 +4,15 @@ const {
   validateJoin,
   validateMessage,
   validateTyping,
+  validateAiRequest,
 } = require('./validators');
+const { aiRateLimiter } = require('./rateLimiter');
+const { handleAiAction } = require('./groqService');
+
+const AI_DELIVERY = {
+  PRIVATE_RESPONSE: 'private_response',
+  ROOM_AI_MESSAGE: 'room_ai_message',
+};
 
 function nowIso() {
   return new Date().toISOString();
@@ -108,6 +116,26 @@ function handleChatMessage(roomManager, ws, payload) {
     return;
   }
 
+  if (message.content.startsWith('/ai ')) {
+    const question = sanitizeText(message.content.slice(4));
+    roomManager.broadcast(message.roomId, message);
+
+    if (!question) {
+      sendError(roomManager, ws, 'INVALID_AI_REQUEST', 'Usage: /ai <question>');
+      return;
+    }
+
+    fulfillAiRequest(roomManager, ws, {
+      action: 'ask',
+      requestId: randomUUID(),
+      roomId: message.roomId,
+      username: message.sender,
+      content: question,
+      delivery: AI_DELIVERY.ROOM_AI_MESSAGE,
+    });
+    return;
+  }
+
   roomManager.broadcast(message.roomId, message);
 }
 
@@ -131,6 +159,97 @@ function handleTyping(roomManager, ws, payload) {
   if (typing.username !== ws.meta.username) return;
 
   roomManager.broadcast(typing.roomId, typing, { exclude: ws });
+}
+
+async function fulfillAiRequest(roomManager, ws, options) {
+  const action = options.action;
+  const requestId = sanitizeText(options.requestId || randomUUID());
+  const roomId = sanitizeText(options.roomId || ws.meta?.roomId || '');
+  const username = sanitizeText(options.username || ws.meta?.username || '');
+  const content = sanitizeText(options.content || '');
+  const delivery = options.delivery || AI_DELIVERY.PRIVATE_RESPONSE;
+  const messages = Array.isArray(options.messages)
+    ? options.messages.slice(-40).map((m) => ({
+        sender: sanitizeText(m.sender || ''),
+        content: sanitizeText(m.content || ''),
+      }))
+    : [];
+
+  const validationError = validateAiRequest({
+    action,
+    requestId,
+    roomId,
+    username,
+    content,
+    messages,
+  });
+
+  if (validationError) {
+    sendError(roomManager, ws, 'INVALID_AI_REQUEST', validationError);
+    return;
+  }
+
+  if (!ws.meta?.roomId || ws.meta.roomId !== roomId) {
+    sendError(roomManager, ws, 'NOT_JOINED', 'Join a room before using AI features');
+    return;
+  }
+
+  if (!aiRateLimiter.allow(ws.meta.clientId)) {
+    sendError(roomManager, ws, 'AI_RATE_LIMIT', 'Too many AI requests. Please wait a moment.');
+    return;
+  }
+
+  try {
+    const result = await handleAiAction({ action, content, messages });
+
+    if (delivery === AI_DELIVERY.ROOM_AI_MESSAGE) {
+      roomManager.broadcast(roomId, {
+        type: 'message',
+        id: randomUUID(),
+        roomId,
+        sender: 'Nova AI',
+        content: result.content,
+        timestamp: nowIso(),
+        isAi: true,
+      });
+      return;
+    }
+
+    const response = {
+      type: 'ai_response',
+      action,
+      requestId,
+      timestamp: nowIso(),
+      isAi: true,
+    };
+
+    if (action === 'smart_reply') {
+      response.suggestions = result.suggestions;
+    } else {
+      response.content = result.content;
+    }
+
+    roomManager.send(ws, response);
+  } catch (err) {
+    sendError(
+      roomManager,
+      ws,
+      err.code || 'AI_ERROR',
+      err.message || 'AI request failed',
+    );
+  }
+}
+
+function handleAiRequest(roomManager, ws, payload) {
+  fulfillAiRequest(roomManager, ws, {
+    action: payload.action,
+    requestId: payload.requestId,
+    roomId: payload.roomId,
+    username: payload.username,
+    content: payload.content,
+    messages: payload.messages,
+    delivery: AI_DELIVERY.PRIVATE_RESPONSE,
+  });
 }
 
 function handleMessage(roomManager, ws, raw) {
@@ -167,6 +286,9 @@ function handleMessage(roomManager, ws, raw) {
       case 'typing':
         handleTyping(roomManager, ws, payload);
         break;
+      case 'ai_request':
+        handleAiRequest(roomManager, ws, payload);
+        break;
       default:
         sendError(
           roomManager,
@@ -181,6 +303,7 @@ function handleMessage(roomManager, ws, raw) {
 }
 
 function handleDisconnect(roomManager, ws) {
+  aiRateLimiter.clear(ws.meta?.clientId);
   const result = roomManager.leave(ws);
   if (!result.roomId || !result.username) return;
 
@@ -195,4 +318,5 @@ function handleDisconnect(roomManager, ws) {
 module.exports = {
   handleMessage,
   handleDisconnect,
+  AI_DELIVERY,
 };

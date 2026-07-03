@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../core/constants/app_constants.dart';
 import '../core/theme/app_colors.dart';
 import '../core/theme/app_spacing.dart';
 import '../core/utils/validators.dart';
+import '../models/connection_status.dart';
+import '../providers/chat_provider.dart';
 import '../widgets/brand_footer.dart';
 import '../widgets/ms_mark.dart';
+import 'chat_screen.dart';
 
 class JoinScreen extends StatefulWidget {
   const JoinScreen({super.key});
@@ -16,25 +20,73 @@ class JoinScreen extends StatefulWidget {
 
 class _JoinScreenState extends State<JoinScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
-  final _roomController = TextEditingController(
-    text: AppConstants.defaultRoomId,
-  );
+  late final TextEditingController _nameController;
+  late final TextEditingController _roomController;
+  late final ChatProvider _chat;
+
+  @override
+  void initState() {
+    super.initState();
+    _chat = context.read<ChatProvider>();
+    _nameController = TextEditingController(text: _chat.username);
+    _roomController = TextEditingController(
+      text: _chat.roomId.isEmpty ? AppConstants.defaultRoomId : _chat.roomId,
+    );
+    _chat.addListener(_syncFromProvider);
+  }
+
+  void _syncFromProvider() {
+    if (!mounted) return;
+    if (_nameController.text.isEmpty && _chat.username.isNotEmpty) {
+      _nameController.text = _chat.username;
+    }
+    if ((_roomController.text.isEmpty ||
+            _roomController.text == AppConstants.defaultRoomId) &&
+        _chat.roomId.isNotEmpty) {
+      _roomController.text = _chat.roomId;
+    }
+  }
 
   @override
   void dispose() {
+    _chat.removeListener(_syncFromProvider);
     _nameController.dispose();
     _roomController.dispose();
     super.dispose();
   }
 
-  void _onJoinPressed() {
+  Future<void> _onJoinPressed() async {
     if (!_formKey.currentState!.validate()) return;
     FocusScope.of(context).unfocus();
+
+    final chat = context.read<ChatProvider>();
+    final ok = await chat.join(
+      username: _nameController.text,
+      roomId: _roomController.text,
+    );
+
+    if (!mounted) return;
+
+    if (ok ||
+        chat.connectionStatus == ConnectionStatus.connected ||
+        chat.connectionStatus == ConnectionStatus.connecting ||
+        chat.connectionStatus == ConnectionStatus.reconnecting) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => const ChatScreen()),
+      );
+      return;
+    }
+
+    final message = chat.errorMessage ?? 'Could not connect';
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
+    chat.clearError();
   }
 
   @override
   Widget build(BuildContext context) {
+    final chat = context.watch<ChatProvider>();
     final width = MediaQuery.sizeOf(context).width;
     final horizontal = width < 360 ? AppSpacing.md : AppSpacing.lg;
 
@@ -159,6 +211,7 @@ class _JoinScreenState extends State<JoinScreen> {
                               children: [
                                 TextFormField(
                                   controller: _nameController,
+                                  enabled: !chat.isJoining,
                                   textInputAction: TextInputAction.next,
                                   validator: Validators.username,
                                   decoration: const InputDecoration(
@@ -171,9 +224,12 @@ class _JoinScreenState extends State<JoinScreen> {
                                 const SizedBox(height: AppSpacing.md),
                                 TextFormField(
                                   controller: _roomController,
+                                  enabled: !chat.isJoining,
                                   textInputAction: TextInputAction.done,
                                   validator: Validators.roomId,
-                                  onFieldSubmitted: (_) => _onJoinPressed(),
+                                  onFieldSubmitted: (_) {
+                                    if (!chat.isJoining) _onJoinPressed();
+                                  },
                                   decoration: const InputDecoration(
                                     labelText: 'Room ID',
                                     prefixIcon: Icon(Icons.hub_outlined),
@@ -182,14 +238,24 @@ class _JoinScreenState extends State<JoinScreen> {
                                 ),
                                 const SizedBox(height: AppSpacing.lg),
                                 FilledButton(
-                                  onPressed: _onJoinPressed,
-                                  child: const Text(
-                                    'Join Conversation',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w700,
-                                      fontSize: 16,
-                                    ),
-                                  ),
+                                  onPressed:
+                                      chat.isJoining ? null : _onJoinPressed,
+                                  child: chat.isJoining
+                                      ? const SizedBox(
+                                          width: 22,
+                                          height: 22,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2.4,
+                                            color: Colors.white,
+                                          ),
+                                        )
+                                      : const Text(
+                                          'Join Conversation',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w700,
+                                            fontSize: 16,
+                                          ),
+                                        ),
                                 ),
                               ],
                             ),
