@@ -12,7 +12,7 @@ pluginManagement {
     repositories {
         google()
         mavenCentral()
-        gradlePluginPortal()
+        // gradlePluginPortal() omitted: often blocked; plugins resolve from Google/Maven Central.
     }
 }
 
