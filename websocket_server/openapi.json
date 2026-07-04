@@ -1,0 +1,381 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Realtime Chat Server API",
+    "description": "Shared HTTP and WebSocket backend for PulseChat and NovaChat AI.\n\n## WebSocket\n\nConnect to the same host using:\n- Local: `ws://localhost:8080`\n- Production (Render): `wss://flutter-realtime-chat.onrender.com`\n\nAfter connecting, send JSON text frames using the message schemas below.\n\n### Client → Server\n- `join` — enter a room\n- `leave` — leave the current room\n- `message` — send a chat message (`/ai <question>` triggers room AI reply)\n- `typing` — typing start/stop\n- `ai_request` — private AI tools (NovaChat AI)\n\n### Server → Client\n- `message` — chat or AI room message (`isAi: true` for AI)\n- `typing` — typing indicator\n- `presence` — online count for the room\n- `system` — join/leave notices\n- `ai_response` — private AI result for the requester\n- `error` — validation or AI errors\n\nAI actions: `ask`, `smart_reply`, `rewrite_professional`, `rewrite_friendly`, `make_concise`, `summarize`.\n\n`GROQ_API_KEY` is server-side only and never returned by this API.",
+    "version": "1.0.0",
+    "contact": {
+      "name": "MANYA SHUKLA"
+    },
+    "license": {
+      "name": "Assignment project"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://flutter-realtime-chat.onrender.com",
+      "description": "Production (Render)"
+    },
+    {
+      "url": "http://localhost:8080",
+      "description": "Local development"
+    }
+  ],
+  "tags": [
+    {
+      "name": "HTTP",
+      "description": "REST endpoints"
+    },
+    {
+      "name": "WebSocket protocol",
+      "description": "JSON message shapes used over the WebSocket connection"
+    }
+  ],
+  "paths": {
+    "/": {
+      "get": {
+        "tags": ["HTTP"],
+        "summary": "Landing page",
+        "description": "HTML landing page for the service.",
+        "responses": {
+          "200": {
+            "description": "HTML page",
+            "content": {
+              "text/html": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "tags": ["HTTP"],
+        "summary": "Health check",
+        "description": "Returns service health status.",
+        "responses": {
+          "200": {
+            "description": "Service is healthy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                },
+                "example": {
+                  "status": "ok",
+                  "service": "realtime-chat-server"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/docs": {
+      "get": {
+        "tags": ["HTTP"],
+        "summary": "Swagger UI",
+        "description": "Interactive OpenAPI documentation.",
+        "responses": {
+          "200": {
+            "description": "Swagger UI HTML"
+          }
+        }
+      }
+    },
+    "/openapi.json": {
+      "get": {
+        "tags": ["HTTP"],
+        "summary": "OpenAPI specification",
+        "description": "Raw OpenAPI 3.0 JSON document.",
+        "responses": {
+          "200": {
+            "description": "OpenAPI document",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ws": {
+      "get": {
+        "tags": ["WebSocket protocol"],
+        "summary": "WebSocket endpoint (same origin)",
+        "description": "Upgrade to WebSocket on the service root host (not a separate `/ws` path). Use `ws://` or `wss://` against the server base URL.\n\nExample client frames are documented under **Schemas**.",
+        "responses": {
+          "101": {
+            "description": "Switching Protocols (WebSocket upgrade)"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "HealthResponse": {
+        "type": "object",
+        "required": ["status", "service"],
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "ok"
+          },
+          "service": {
+            "type": "string",
+            "example": "realtime-chat-server"
+          }
+        }
+      },
+      "JoinMessage": {
+        "type": "object",
+        "required": ["type", "username", "roomId"],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["join"]
+          },
+          "username": {
+            "type": "string",
+            "maxLength": 24,
+            "example": "Manya"
+          },
+          "roomId": {
+            "type": "string",
+            "maxLength": 32,
+            "pattern": "^[a-zA-Z0-9_-]+$",
+            "example": "general"
+          }
+        }
+      },
+      "LeaveMessage": {
+        "type": "object",
+        "required": ["type"],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["leave"]
+          }
+        }
+      },
+      "ChatMessage": {
+        "type": "object",
+        "required": ["type", "id", "roomId", "sender", "content", "timestamp"],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["message"]
+          },
+          "id": {
+            "type": "string",
+            "example": "unique-id"
+          },
+          "roomId": {
+            "type": "string",
+            "example": "general"
+          },
+          "sender": {
+            "type": "string",
+            "example": "Manya"
+          },
+          "content": {
+            "type": "string",
+            "maxLength": 1000,
+            "example": "Hello from PulseChat!"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "isAi": {
+            "type": "boolean",
+            "description": "Present on server broadcasts for AI room messages",
+            "example": false
+          }
+        }
+      },
+      "TypingMessage": {
+        "type": "object",
+        "required": ["type", "roomId", "username", "isTyping"],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["typing"]
+          },
+          "roomId": {
+            "type": "string",
+            "example": "general"
+          },
+          "username": {
+            "type": "string",
+            "example": "Reviewer"
+          },
+          "isTyping": {
+            "type": "boolean",
+            "example": true
+          }
+        }
+      },
+      "PresenceMessage": {
+        "type": "object",
+        "required": ["type", "roomId", "onlineCount"],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["presence"]
+          },
+          "roomId": {
+            "type": "string",
+            "example": "general"
+          },
+          "onlineCount": {
+            "type": "integer",
+            "example": 2
+          }
+        }
+      },
+      "SystemMessage": {
+        "type": "object",
+        "required": ["type", "content", "timestamp"],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["system"]
+          },
+          "content": {
+            "type": "string",
+            "example": "Manya joined the room"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "AiRequest": {
+        "type": "object",
+        "required": ["type", "action", "roomId", "username", "requestId"],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["ai_request"]
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "ask",
+              "smart_reply",
+              "rewrite_professional",
+              "rewrite_friendly",
+              "make_concise",
+              "summarize"
+            ]
+          },
+          "roomId": {
+            "type": "string",
+            "example": "general"
+          },
+          "username": {
+            "type": "string",
+            "example": "Reviewer"
+          },
+          "content": {
+            "type": "string",
+            "maxLength": 2000,
+            "description": "Required for all actions except summarize"
+          },
+          "requestId": {
+            "type": "string",
+            "example": "unique-request-id"
+          },
+          "messages": {
+            "type": "array",
+            "description": "Required for summarize",
+            "items": {
+              "type": "object",
+              "properties": {
+                "sender": {
+                  "type": "string"
+                },
+                "content": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "AiResponse": {
+        "type": "object",
+        "required": ["type", "action", "requestId", "timestamp", "isAi"],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["ai_response"]
+          },
+          "action": {
+            "type": "string"
+          },
+          "requestId": {
+            "type": "string"
+          },
+          "content": {
+            "type": "string",
+            "description": "Present for ask, rewrite_*, make_concise, summarize"
+          },
+          "suggestions": {
+            "type": "array",
+            "description": "Present for smart_reply (exactly 3 items)",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 3,
+            "maxItems": 3
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "isAi": {
+            "type": "boolean",
+            "example": true
+          }
+        }
+      },
+      "ErrorMessage": {
+        "type": "object",
+        "required": ["type", "code", "message"],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["error"]
+          },
+          "code": {
+            "type": "string",
+            "examples": [
+              "INVALID_JSON",
+              "INVALID_JOIN",
+              "INVALID_MESSAGE",
+              "NOT_JOINED",
+              "AI_NOT_CONFIGURED",
+              "AI_UNAUTHORIZED",
+              "AI_RATE_LIMIT",
+              "AI_TIMEOUT"
+            ]
+          },
+          "message": {
+            "type": "string",
+            "example": "Readable error"
+          }
+        }
+      }
+    }
+  }
+}
