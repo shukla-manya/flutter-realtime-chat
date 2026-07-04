@@ -1,3 +1,4 @@
+const path = require('path');
 const http = require('http');
 const express = require('express');
 const cors = require('cors');
@@ -11,11 +12,53 @@ const app = express();
 app.use(cors());
 app.use(express.json({ limit: '32kb' }));
 
+const openApiPath = path.join(__dirname, '..', 'openapi.json');
+
 app.get('/health', (_req, res) => {
   res.json({
     status: 'ok',
     service: 'realtime-chat-server',
   });
+});
+
+app.get('/openapi.json', (_req, res) => {
+  res.sendFile(openApiPath);
+});
+
+app.get(['/docs', '/swagger'], (_req, res) => {
+  res.type('html').send(`<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>API Docs | Realtime Chat Server</title>
+  <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5.17.14/swagger-ui.css" />
+  <style>
+    body { margin: 0; background: #0B1020; }
+    .topbar { display: none; }
+    .swagger-ui .info .title { color: #F8FAFC; }
+    .swagger-ui .info p,
+    .swagger-ui .info li,
+    .swagger-ui .info table,
+    .swagger-ui .markdown p { color: #CBD5E1; }
+  </style>
+</head>
+<body>
+  <div id="swagger-ui"></div>
+  <script src="https://unpkg.com/swagger-ui-dist@5.17.14/swagger-ui-bundle.js"></script>
+  <script src="https://unpkg.com/swagger-ui-dist@5.17.14/swagger-ui-standalone-preset.js"></script>
+  <script>
+    window.ui = SwaggerUIBundle({
+      url: '/openapi.json',
+      dom_id: '#swagger-ui',
+      presets: [SwaggerUIBundle.presets.apis, SwaggerUIStandalonePreset],
+      layout: 'StandaloneLayout',
+      deepLinking: true,
+      tryItOutEnabled: true,
+    });
+  </script>
+</body>
+</html>`);
 });
 
 app.get('/', (_req, res) => {
@@ -68,7 +111,7 @@ app.get('/', (_req, res) => {
       color: #94A3B8;
       font-size: 0.95rem;
       line-height: 1.5;
-      margin-bottom: 20px;
+      margin-bottom: 16px;
     }
     .love {
       font-size: 0.95rem;
@@ -76,6 +119,28 @@ app.get('/', (_req, res) => {
       font-weight: 500;
     }
     .love span { color: #F472B6; }
+    .links {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin: 22px 0 8px;
+    }
+    a.btn {
+      display: block;
+      text-decoration: none;
+      padding: 12px 16px;
+      border-radius: 14px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: #fff;
+      background: linear-gradient(135deg, #5B5FEF, #8B5CF6);
+    }
+    a.btn.secondary {
+      background: transparent;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      color: #E2E8F0;
+      font-weight: 600;
+    }
     .meta {
       margin-top: 18px;
       font-size: 0.8rem;
@@ -88,13 +153,17 @@ app.get('/', (_req, res) => {
     <div class="mark">MS</div>
     <h1>Realtime Chat Server</h1>
     <p>Shared WebSocket backend for PulseChat and NovaChat AI.</p>
+    <div class="links">
+      <a class="btn" href="/docs">Open Swagger Docs</a>
+      <a class="btn secondary" href="/openapi.json">OpenAPI JSON</a>
+      <a class="btn secondary" href="/health">Health Check</a>
+    </div>
     <p class="love">Made with <span>♥</span> by Manya Shukla</p>
     <p class="meta">by MANYA SHUKLA 2026</p>
   </main>
 </body>
 </html>`);
 });
-
 
 const server = http.createServer(app);
 const wss = new WebSocketServer({ server });
@@ -147,6 +216,7 @@ wss.on('close', () => {
 server.listen(config.port, () => {
   console.log(`Realtime chat server listening on http://localhost:${config.port}`);
   console.log(`WebSocket endpoint: ws://localhost:${config.port}`);
+  console.log(`Swagger docs: http://localhost:${config.port}/docs`);
   console.log(`Groq model: ${config.groqModel}`);
   console.log(
     isKeyConfigured()
