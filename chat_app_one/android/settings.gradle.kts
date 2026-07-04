@@ -10,9 +10,9 @@ pluginManagement {
     includeBuild("$flutterSdkPath/packages/flutter_tools/gradle")
 
     repositories {
+        maven(url = uri("file:///Users/manyashukla/dev-tools/m2"))
         google()
         mavenCentral()
-        // gradlePluginPortal() omitted: often blocked; plugins resolve from Google/Maven Central.
     }
 }
 

@@ -1,5 +1,6 @@
 allprojects {
     repositories {
+        maven(url = uri("file:///Users/manyashukla/dev-tools/m2"))
         google()
         mavenCentral()
     }
