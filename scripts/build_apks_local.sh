@@ -7,10 +7,6 @@ export ANDROID_SDK_ROOT="$ANDROID_HOME"
 export FLUTTER_ROOT="/Users/manyashukla/flutter-realtime-chat/.tools/flutter"
 export PATH="$FLUTTER_ROOT/bin:$JAVA_HOME/bin:$ANDROID_HOME/platform-tools:$PATH"
 export FLUTTER_PREBUILT_ENGINE_VERSION="dd93de6fb1776398bf586cbd477deade1391c7e4"
-# Clear Cursor sandbox proxy if inherited
-unset HTTP_PROXY HTTPS_PROXY http_proxy https_proxy ALL_PROXY all_proxy \
-      SOCKS_PROXY SOCKS5_PROXY socks_proxy socks5_proxy \
-      GIT_HTTP_PROXY GIT_HTTPS_PROXY || true
 
 ROOT="/Users/manyashukla/flutter-realtime-chat"
 WS_URL="wss://flutter-realtime-chat.onrender.com"
@@ -19,8 +15,8 @@ LOG="$ROOT/scripts/build_apks.log"
 exec > >(tee "$LOG") 2>&1
 
 echo "=== Flutter version ==="
-flutter --version
 echo "3.32.5" > "$FLUTTER_ROOT/version"
+flutter --version
 
 GRADLE_DIST="/Users/manyashukla/.gradle/wrapper/dists/gradle-8.12-all/bm591p7ru188z8nkqq84epxyh"
 mkdir -p "$GRADLE_DIST"
@@ -42,14 +38,10 @@ build_one() {
   if [[ ! -d android ]]; then
     flutter create . --project-name "$app"
   fi
-  sed -i '' 's|distributionUrl=.*|distributionUrl=file\\:///Users/manyashukla/dev-tools/gradle-8.12-all.zip|' \
-    android/gradle/wrapper/gradle-wrapper.properties
-  # Ensure clean gradle.properties for normal Mac builds
-  if [[ -f android/gradle.properties ]]; then
-    # Drop sandbox-only java.home / proxy overrides if present
-    grep -v 'org.gradle.java.home=\|systemProp.http.proxy\|systemProp.https.proxy\|systemProp.http.nonProxy\|systemProp.https.nonProxy' \
-      android/gradle.properties > android/gradle.properties.tmp || true
-    mv android/gradle.properties.tmp android/gradle.properties
+  # Prefer local Gradle zip if present
+  if [[ -f /Users/manyashukla/dev-tools/gradle-8.12-all.zip ]]; then
+    sed -i '' 's|distributionUrl=.*|distributionUrl=file\\:///Users/manyashukla/dev-tools/gradle-8.12-all.zip|' \
+      android/gradle/wrapper/gradle-wrapper.properties
   fi
   flutter pub get
   flutter build apk --release --dart-define="WS_URL=${WS_URL}"
@@ -66,3 +58,7 @@ cp "$ROOT/chat_app_two/build/app/outputs/flutter-apk/app-release.apk" "$ROOT/apk
 echo ""
 echo "DONE"
 ls -lh "$ROOT/apks/"
+echo ""
+echo "Install with:"
+echo "  adb install -r $ROOT/apks/PulseChat.apk"
+echo "  adb install -r $ROOT/apks/NovaChatAI.apk"
