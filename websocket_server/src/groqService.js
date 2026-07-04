@@ -51,7 +51,16 @@ async function callGroq({ system, user, temperature = 0.4 }) {
     }
 
     if (!response.ok) {
-      const error = new Error(`Groq request failed (${response.status})`);
+      let detail = '';
+      try {
+        const body = await response.json();
+        detail = body?.error?.message || '';
+      } catch (_) {}
+      const error = new Error(
+        detail
+          ? `Groq request failed (${response.status}): ${detail}`
+          : `Groq request failed (${response.status})`,
+      );
       error.code = 'AI_UPSTREAM_ERROR';
       throw error;
     }
