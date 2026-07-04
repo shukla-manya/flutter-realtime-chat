@@ -5,7 +5,7 @@ Shared backend for PulseChat and NovaChat AI.
 ## Setup
 
 ```bash
-cp .env.example .env
+
 npm install
 npm start
 ```
