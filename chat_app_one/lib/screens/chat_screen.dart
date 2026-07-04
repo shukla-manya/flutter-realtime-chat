@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../core/theme/app_colors.dart';
 import '../core/theme/app_layout.dart';
+import '../models/connection_status.dart';
 import '../providers/chat_provider.dart';
 import '../providers/theme_provider.dart';
 import '../widgets/brand_footer.dart';
@@ -99,7 +100,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     contentPadding: EdgeInsets.zero,
                     title: const Text('Dark theme'),
                     value: theme.isDarkMode,
-                    activeThumbColor: AppColors.primary,
+                    activeColor: AppColors.primary,
                     onChanged: (_) => theme.toggleTheme(),
                   ),
                   const SizedBox(height: 8),

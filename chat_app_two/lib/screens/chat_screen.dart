@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../core/theme/app_colors.dart';
 import '../core/theme/app_layout.dart';
+import '../models/connection_status.dart';
 import '../providers/chat_provider.dart';
 import '../widgets/ai_action_sheet.dart';
 import '../widgets/brand_footer.dart';

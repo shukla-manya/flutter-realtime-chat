@@ -43,6 +43,11 @@ build_one() {
     sed -i '' 's|distributionUrl=.*|distributionUrl=file\\:///Users/manyashukla/dev-tools/gradle-8.12-all.zip|' \
       android/gradle/wrapper/gradle-wrapper.properties
   fi
+  # Plugins require NDK 27
+  if [[ -f android/app/build.gradle.kts ]]; then
+    sed -i '' 's|ndkVersion = flutter.ndkVersion|ndkVersion = "27.0.12077973"|' \
+      android/app/build.gradle.kts
+  fi
   flutter pub get
   flutter build apk --release --dart-define="WS_URL=${WS_URL}"
   echo "APK: $ROOT/$app/build/app/outputs/flutter-apk/app-release.apk"
