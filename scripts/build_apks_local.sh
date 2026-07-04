@@ -48,6 +48,12 @@ build_one() {
     sed -i '' 's|ndkVersion = flutter.ndkVersion|ndkVersion = "27.0.12077973"|' \
       android/app/build.gradle.kts
   fi
+  # Release builds need INTERNET on the main manifest (debug/profile alone is not enough)
+  local manifest="android/app/src/main/AndroidManifest.xml"
+  if [[ -f "$manifest" ]] && ! grep -q 'android.permission.INTERNET' "$manifest"; then
+    sed -i '' 's|<manifest xmlns:android="http://schemas.android.com/apk/res/android">|<manifest xmlns:android="http://schemas.android.com/apk/res/android">\
+    <uses-permission android:name="android.permission.INTERNET"/>|' "$manifest"
+  fi
   flutter pub get
   flutter build apk --release --dart-define="WS_URL=${WS_URL}"
   echo "APK: $ROOT/$app/build/app/outputs/flutter-apk/app-release.apk"
